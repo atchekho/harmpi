@@ -94,6 +94,8 @@ void dump(FILE *fp)
 		coord(i,j,CENT,X) ;
 		bl_coord(X,&r,&th) ;
 
+		fprintf(fp, FMT_INT_OUT, i       );
+		fprintf(fp, FMT_INT_OUT, j       );
 		fprintf(fp, FMT_DBL_OUT, X[1]       );
 		fprintf(fp, FMT_DBL_OUT, X[2]       );
 		fprintf(fp, FMT_DBL_OUT, r          );
