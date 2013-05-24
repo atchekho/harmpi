@@ -75,6 +75,10 @@
 #define RHOMINLIMIT (1.e-20)
 #define UUMINLIMIT  (1.e-20)
 
+#define BSQORHOMAX (50)
+#define BSQOUMAX (250)
+#define UORHOMAX (50)
+
 
 /* A numerical convenience to represent a small non-zero quantity compared to unity:*/
 #define SMALL	(1.e-20)

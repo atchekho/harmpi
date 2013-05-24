@@ -62,6 +62,7 @@ void fixup1zone( int i, int j, double pv[NPR] )
 {
   double r,th,X[NDIM],uuscal,rhoscal, rhoflr,uuflr ;
   double f,gamma ;
+  double bsq;
   struct of_geom geom ;
 
   coord(i,j,CENT,X) ;
@@ -74,6 +75,15 @@ void fixup1zone( int i, int j, double pv[NPR] )
   rhoflr = RHOMIN*rhoscal;
   uuflr  = UUMIN*uuscal;
 
+  //compute the square of fluid frame magnetic field (twice magnetic pressure)
+  get_geometry(i,j,CENT,&geom) ;
+  bsq = bsq_calc(pv,&geom) ;
+  
+  //tie floors to the local values of magnetic field and internal energy density
+  if( rhoflr < bsq / BSQORHOMAX ) rhoflr = bsq / BSQORHOMAX;
+  if( uuflr < bsq / BSQOUMAX ) uuflr = bsq / BSQORHOMAX;
+  if( rhoflr < pv[UU] / UORHOMAX ) rhoflr = pv[UU] / UORHOMAX;
+
   if( rhoflr < RHOMINLIMIT ) rhoflr = RHOMINLIMIT;
   if( uuflr  < UUMINLIMIT  ) uuflr  = UUMINLIMIT;
 
@@ -83,7 +93,6 @@ void fixup1zone( int i, int j, double pv[NPR] )
 
 
   /* limit gamma wrt normal observer */
-  get_geometry(i,j,CENT,&geom) ;
 
   if( gamma_calc(pv,&geom,&gamma) ) { 
     /* Treat gamma failure here as "fixable" for fixup_utoprim() */
