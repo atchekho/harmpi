@@ -1,0 +1,68 @@
+diag.c:	static double e_init,m_init ;
+diag.c:	static FILE *ener_file ;
+fixup.c:  static int pf[9];
+image.c:static unsigned int color_map[3][NCOLORS];   
+image.c:static int ppm_height, ppm_ncolors, ppm_width;
+image.c:  static int first_call = 1;
+image.c:  static char ifnam[3*NIMG+1][100];
+image.c:  static const double fimage_logmin = 1.e-15;
+lu.c:  static double row_norm[NDIM];
+ranc.c:    static int P[NRANC] = {
+ranc.c:    static int a[NRANC] ;
+ranc.c:    static int S[NRANC] ;
+ranc.c:    static int n = 0 ;
+step_ch.c:	static double emf[N1+1][N2+1] ;
+u2p_util.c:  static FTYPE ucon[NDIM],ucov[NDIM],bcon[NDIM],bcov[NDIM],ncov[NDIM] ;
+u2p_util.c:  static FTYPE Bcon[NDIM] ;
+utoprim_1dfix1.c:static FTYPE vsq_calc(FTYPE W);
+utoprim_1dfix1.c:static FTYPE u_of_p(FTYPE p);
+utoprim_1dfix1.c:static FTYPE pressure_of_rho(FTYPE rho0);
+utoprim_1dfix1.c:  static int Utoprim_new_body(FTYPE U[], FTYPE gcov[NDIM][NDIM], 
+utoprim_1dfix1.c:static int Utoprim_new_body(FTYPE U[NPR], FTYPE gcov[NDIM][NDIM], 
+utoprim_1dfix1.c:  static void func_1d_orig1(FTYPE x[], FTYPE dx[], FTYPE resid[], 
+utoprim_1dfix1.c:  static void func_1d_orig2(FTYPE x[], FTYPE dx[], FTYPE resid[], 
+utoprim_1dfix1.c:  static int general_newton_raphson( FTYPE x[], int n, 
+utoprim_1dfix1.c:static FTYPE vsq_calc(FTYPE W)
+utoprim_1dfix1.c:static FTYPE dvsq_dW(FTYPE W)
+utoprim_1dfix1.c:static int general_newton_raphson( FTYPE x[], int n, 
+utoprim_1dfix1.c:static int gnr2( FTYPE x[], int n, 
+utoprim_1dfix1.c:static void func_1d_orig1(FTYPE x[], FTYPE dx[], FTYPE resid[], 
+utoprim_1dfix1.c:  static void func_gnr2_rho(FTYPE x[], FTYPE dx[], FTYPE resid[], 
+utoprim_1dfix1.c:  static int gnr2( FTYPE x[], int n, 
+utoprim_1dfix1.c:static void func_1d_orig2(FTYPE x[], FTYPE dx[], FTYPE resid[], 
+utoprim_1dfix1.c:static void func_gnr2_rho(FTYPE x[], FTYPE dx[], FTYPE resid[], 
+utoprim_1dfix1.c:static FTYPE pressure_of_rho(FTYPE rho0)
+utoprim_1dfix1.c:static FTYPE u_of_p(FTYPE p)
+utoprim_1dvsq2fix1.c:static FTYPE vsq_calc(FTYPE W);
+utoprim_1dvsq2fix1.c:static FTYPE W_of_vsq(FTYPE vsq, FTYPE *p, FTYPE *rho, FTYPE *u);
+utoprim_1dvsq2fix1.c:  static int Utoprim_new_body(FTYPE U[], FTYPE gcov[NDIM][NDIM], 
+utoprim_1dvsq2fix1.c:static int Utoprim_new_body(FTYPE U[NPR], FTYPE gcov[NDIM][NDIM], 
+utoprim_1dvsq2fix1.c:  static void func_1d_gnr(FTYPE x[], FTYPE dx[], FTYPE resid[], 
+utoprim_1dvsq2fix1.c:  static int general_newton_raphson( FTYPE x[], int n, 
+utoprim_1dvsq2fix1.c:static void validate_x(FTYPE x[1], FTYPE x0[1] ) 
+utoprim_1dvsq2fix1.c:static int general_newton_raphson( FTYPE x[], int n, 
+utoprim_1dvsq2fix1.c:static void func_1d_gnr(FTYPE x[], FTYPE dx[], FTYPE resid[], 
+utoprim_1dvsq2fix1.c:  static FTYPE dWdvsq_calc(FTYPE vsq, FTYPE rho, FTYPE p);
+utoprim_1dvsq2fix1.c:static FTYPE pressure_of_rho(FTYPE rho0)
+utoprim_1dvsq2fix1.c:static FTYPE u_of_p(FTYPE p)
+utoprim_1dvsq2fix1.c:static FTYPE W_of_vsq(FTYPE vsq, FTYPE *p, FTYPE *rho, FTYPE *u)
+utoprim_1dvsq2fix1.c:  static FTYPE u_of_p(FTYPE p);
+utoprim_1dvsq2fix1.c:  static FTYPE pressure_of_rho(FTYPE rho0);
+utoprim_1dvsq2fix1.c:static FTYPE dWdvsq_calc(FTYPE vsq, FTYPE rho, FTYPE p)
+utoprim_2d.c:static FTYPE vsq_calc(FTYPE W);
+utoprim_2d.c:  static int Utoprim_new_body(FTYPE U[], FTYPE gcov[NDIM][NDIM], 
+utoprim_2d.c:static int Utoprim_new_body(FTYPE U[NPR], FTYPE gcov[NDIM][NDIM], 
+utoprim_2d.c:  static int general_newton_raphson( FTYPE x[], int n, 
+utoprim_2d.c:  static  void func_vsq( FTYPE [], FTYPE [], FTYPE [], FTYPE [][NEWT_DIM], 
+utoprim_2d.c:  static FTYPE x1_of_x0(FTYPE x0 ) ;
+utoprim_2d.c:static FTYPE vsq_calc(FTYPE W)
+utoprim_2d.c:static FTYPE x1_of_x0(FTYPE x0 ) 
+utoprim_2d.c:static void validate_x(FTYPE x[2], FTYPE x0[2] ) 
+utoprim_2d.c:static int general_newton_raphson( FTYPE x[], int n, 
+utoprim_2d.c:static void func_vsq(FTYPE x[], FTYPE dx[], FTYPE resid[], 
+utoprim_2d.c:  static FTYPE pressure_W_vsq(FTYPE W, FTYPE vsq) ;
+utoprim_2d.c:  static FTYPE dpdW_calc_vsq(FTYPE W, FTYPE vsq);
+utoprim_2d.c:  static FTYPE dpdvsq_calc(FTYPE W, FTYPE vsq);
+utoprim_2d.c:static FTYPE pressure_W_vsq(FTYPE W, FTYPE vsq) 
+utoprim_2d.c:static FTYPE dpdW_calc_vsq(FTYPE W, FTYPE vsq)
+utoprim_2d.c:static FTYPE dpdvsq_calc(FTYPE W, FTYPE vsq)
