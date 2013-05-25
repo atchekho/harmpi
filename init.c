@@ -369,7 +369,7 @@ void init_monopole()
         Rout = 40. ;
 
         t = 0. ;
-        hslope = 0.3 ;
+        hslope = 1. ;
 
         set_arrays() ;
         set_grid() ;
@@ -382,7 +382,7 @@ void init_monopole()
         /* output choices */
 	tf = 2000.0 ;
 
-	DTd = 10. ;	/* dumping frequency, in units of M */
+	DTd = 2. ;	/* dumping frequency, in units of M */
 	DTl = 2. ;	/* logfile frequency, in units of M */
 	DTi = 2. ; 	/* image file frequ., in units of M */
 	DTr = 100 ; 	/* restart file frequ., in timesteps */
