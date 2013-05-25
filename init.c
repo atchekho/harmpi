@@ -56,7 +56,29 @@
 
 void coord_transform(double *pr,int i, int j) ;
 
+#define MONOPOLE_PROBLEM 1
+#define TORUS_PROBLEM 2
+
+#define WHICHPROBLEM MONOPOLE_PROBLEM
+
+
 void init()
+{
+  void init_torus(void);
+  void init_monopole(void);
+
+  switch( WHICHPROBLEM ) {
+  case MONOPOLE_PROBLEM:
+    init_monopole();
+    break;
+  case TORUS_PROBLEM:
+    init_torus();
+    break;
+  }
+
+}
+
+void init_torus()
 {
 	int i,j ;
 	double r,th,sth,cth ;
@@ -293,6 +315,167 @@ void init()
 	}
 	beta_act = (gam - 1.)*umax/(0.5*bsq_max) ;
 	fprintf(stderr,"final beta: %g (should be %g)\n",beta_act,beta) ;
+
+	/* enforce boundary conditions */
+	fixup(p) ;
+	bound_prim(p) ;
+
+
+#if( DO_FONT_FIX ) 
+	set_Katm();
+#endif 
+
+
+}
+
+
+void init_monopole()
+{
+	int i,j ;
+	double r,th,sth,cth ;
+	double ur,uh,up,u,rho ;
+	double X[NDIM] ;
+	struct of_geom geom ;
+
+	/* for disk interior */
+	double l,rin,lnh,expm2chi,up1 ;
+	double DD,AA,SS,thin,sthin,cthin,DDin,AAin,SSin ;
+	double kappa,hm1 ;
+
+	/* for magnetic field */
+	double A[N1+1][N2+1] ;
+	double rho_av,rhomax,umax,beta,bsq_ij,bsq_max,norm,q,beta_act ;
+	double rmax, lfish_calc(double rmax) ;
+
+	/* some physics parameters */
+	gam = 4./3. ;
+
+	/* disk parameters (use fishbone.m to select new solutions) */
+        a = 0.9375 ;
+        rin = 6. ;
+	rmax = 12. ;
+        l = lfish_calc(rmax) ;
+
+	kappa = 1.e-3 ;
+	beta = 1.e2 ;
+
+        /* some numerical parameters */
+        lim = MC ;
+        failed = 0 ;	/* start slow */
+        cour = 0.9 ;
+        dt = 1.e-5 ;
+	R0 = 0.0 ;
+        Rin = 0.98*(1. + sqrt(1. - a*a)) ;
+        Rout = 40. ;
+
+        t = 0. ;
+        hslope = 0.3 ;
+
+        set_arrays() ;
+        set_grid() ;
+
+	coord(-2,0,CENT,X) ;
+	bl_coord(X,&r,&th) ;
+	fprintf(stderr,"rmin: %g\n",r) ;
+	fprintf(stderr,"rmin/rm: %g\n",r/(1. + sqrt(1. - a*a))) ;
+
+        /* output choices */
+	tf = 2000.0 ;
+
+	DTd = 10. ;	/* dumping frequency, in units of M */
+	DTl = 2. ;	/* logfile frequency, in units of M */
+	DTi = 2. ; 	/* image file frequ., in units of M */
+	DTr = 100 ; 	/* restart file frequ., in timesteps */
+
+	/* start diagnostic counters */
+	dump_cnt = 0 ;
+	image_cnt = 0 ;
+	rdump_cnt = 0 ;
+	defcon = 1. ;
+
+	rhomax = 0. ;
+	umax = 0. ;
+	ZSLOOP(0,N1-1,0,N2-1) {
+	  coord(i,j,CENT,X) ;
+	  bl_coord(X,&r,&th) ;
+
+	  sth = sin(th) ;
+	  cth = cos(th) ;
+
+	  /* rho = 1.e-7*RHOMIN ; */
+	  /* u = 1.e-7*UUMIN ; */
+
+	  rho = pow(r,-4.)/BSQORHOMAX;
+	  u = pow(r,-4.*gam)/BSQOUMAX;
+
+	  /* these values are demonstrably physical
+	     for all values of a and r */
+	  /*
+	    ur = -1./(r*r) ;
+	    uh = 0. ;
+	    up = 0. ;
+	  */
+
+	  ur = 0. ;
+	  uh = 0. ;
+	  up = 0. ;
+
+	  /*
+	    get_geometry(i,j,CENT,&geom) ;
+	    ur = geom.gcon[0][1]/geom.gcon[0][0] ;
+	    uh = geom.gcon[0][2]/geom.gcon[0][0] ;
+	    up = geom.gcon[0][3]/geom.gcon[0][0] ;
+	  */
+
+	  p[i][j][RHO] = rho ;
+	  p[i][j][UU] = u ;
+	  p[i][j][U1] = ur ;
+	  p[i][j][U2] = uh ;
+	  p[i][j][U3] = up ;
+	  p[i][j][B1] = 0. ;
+	  p[i][j][B2] = 0. ;
+	  p[i][j][B3] = 0. ;
+	}
+
+	rhomax = 1. ;
+	fixup(p) ;
+	bound_prim(p) ;
+
+	/* first find corner-centered vector potential */
+	ZSLOOP(0,N1,0,N2) A[i][j] = 0. ;
+        ZSLOOP(0,N1,0,N2) {
+#if(0)
+                /* vertical field version */
+                coord(i,j,CORN,X) ;
+                bl_coord(X,&r,&th) ;
+                A[i][j] = 0.5*r*sin(th) ;
+#elif(1)
+                /* radial (monopolar) field version */
+                coord(i,j,CORN,X) ;
+                bl_coord(X,&r,&th) ;
+                A[i][j] = (1-cos(th)) ;
+#endif
+
+        }
+
+	/* now differentiate to find cell-centered B,
+	   and begin normalization */
+	bsq_max = 0. ;
+	ZLOOP {
+		get_geometry(i,j,CENT,&geom) ;
+
+		/* flux-ct */
+		p[i][j][B1] = -(A[i][j] - A[i][j+1] 
+				+ A[i+1][j] - A[i+1][j+1])/(2.*dx[2]*geom.g) ;
+		p[i][j][B2] = (A[i][j] + A[i][j+1] 
+				- A[i+1][j] - A[i+1][j+1])/(2.*dx[1]*geom.g) ;
+
+		p[i][j][B3] = 0. ;
+
+		bsq_ij = bsq_calc(p[i][j],&geom) ;
+		if(bsq_ij > bsq_max) bsq_max = bsq_ij ;
+	}
+	fprintf(stderr,"initial bsq_max: %g\n",bsq_max) ;
 
 	/* enforce boundary conditions */
 	fixup(p) ;
