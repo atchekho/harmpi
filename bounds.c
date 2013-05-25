@@ -49,7 +49,7 @@
 
 void bound_prim( double prim[][N2+4][NPR] )
 {
-        int i,j,k ;
+        int i,j,k,jref ;
 	void inflow_check(double *pr, int ii, int jj, int type );
         struct of_geom geom ;
 
@@ -109,6 +109,29 @@ void bound_prim( double prim[][N2+4][NPR] )
 	  inflow_check(prim[N1+1][j],i,j,1) ;
 	}
 
+#if(POLEFIX)
+	//copy all densities and B^phi in; interpolate linearly transverse velocity
+	jref = POLEFIX;
+        for(i=-2;i<N1+2;i++) {
+	  for(j=0;j<jref;j++) {
+	    PLOOP {
+	      if(k==B1 || k==B2) 
+		//don't touch magnetic fields
+		continue;
+	      else if(k==U2) {
+		//linear interpolation of transverse velocity (both poles)
+		prim[i][j][k] = (j+0.5)/(jref+0.5) * prim[i][jref][k];
+		prim[i][N2-1-j][k] = (j+0.5)/(jref+0.5) * prim[i][N2-1-jref][k];
+	      }
+	      else {
+		//everything else copy (both poles)
+		prim[i][N2-1-j][k] = prim[i][jref][k];
+		prim[i][N2-1-j][k] = prim[i][N2-1-jref][k];
+	      }
+	    }
+	  }
+	}	
+#endif
         /* polar BCs */
         for(i=-2;i<=N1+1;i++) { 
 	  PLOOP {

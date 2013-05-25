@@ -66,6 +66,9 @@
 /* whether or not to use Font's  adiabatic/isothermal prim. var. inversion method: */
 #define DO_FONT_FIX (1)
 
+/* how many cells near the poles to stabilize, choose 0 for no stabilization */
+#define POLEFIX (2)
+
 /* whether or not to rescale primitive variables before interpolating them for flux/BC's */
 #define RESCALE     (0)
 
