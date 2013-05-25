@@ -405,8 +405,11 @@ void init_monopole()
 	  /* rho = 1.e-7*RHOMIN ; */
 	  /* u = 1.e-7*UUMIN ; */
 
-	  rho = pow(r,-4.)/BSQORHOMAX;
-	  u = pow(r,-4.*gam)/BSQOUMAX;
+	  /* rho = pow(r,-4.)/BSQORHOMAX; */
+	  /* u = pow(r,-4.*gam)/BSQOUMAX; */
+
+	  rho = RHOMINLIMIT;
+	  u = UUMINLIMIT;
 
 	  /* these values are demonstrably physical
 	     for all values of a and r */
