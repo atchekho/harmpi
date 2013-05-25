@@ -74,6 +74,7 @@
 #define UUMIN	(1.e-6)
 #define RHOMINLIMIT (1.e-20)
 #define UUMINLIMIT  (1.e-20)
+#define POWRHO (4)
 
 #define BSQORHOMAX (50)
 #define BSQOUMAX (250)
