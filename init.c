@@ -365,13 +365,13 @@ void init_monopole()
         failed = 0 ;	/* start slow */
         cour = 0.9 ;
         dt = 1.e-5 ;
-	R0 = 0.7 ;
-        Rin = 0.98*(1. + sqrt(1. - a*a)) ;
-        Rout = 1e3 ;
+	R0 = 0. ;
+        Rin = 0.9*(1. + sqrt(1. - a*a)) ;
+        Rout = 100 ;
 
         t = 0. ;
         hslope = 1. ;
-	fractheta = 0.01;
+	fractheta = 1.;
 
         set_arrays() ;
         set_grid() ;
