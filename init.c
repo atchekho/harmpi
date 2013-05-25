@@ -384,7 +384,7 @@ void init_monopole()
         /* output choices */
 	tf = 2000.0 ;
 
-	DTd = 10. ;	/* dumping frequency, in units of M */
+	DTd = 1. ;	/* dumping frequency, in units of M */
 	DTl = 50. ;	/* logfile frequency, in units of M */
 	DTi = 50. ; 	/* image file frequ., in units of M */
 	DTr = 100 ; 	/* restart file frequ., in timesteps */
