@@ -367,7 +367,7 @@ void init_monopole()
         dt = 1.e-5 ;
 	R0 = 0. ;
         Rin = 0.9*(1. + sqrt(1. - a*a)) ;
-        Rout = 100 ;
+        Rout = 1000 ;
 
         t = 0. ;
         hslope = 1. ;
@@ -384,7 +384,7 @@ void init_monopole()
         /* output choices */
 	tf = 2000.0 ;
 
-	DTd = 1. ;	/* dumping frequency, in units of M */
+	DTd = 10. ;	/* dumping frequency, in units of M */
 	DTl = 50. ;	/* logfile frequency, in units of M */
 	DTi = 50. ; 	/* image file frequ., in units of M */
 	DTr = 100 ; 	/* restart file frequ., in timesteps */
