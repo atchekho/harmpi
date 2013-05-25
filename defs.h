@@ -87,7 +87,7 @@ double a ;
 double gam ;
 
 /* numerical parameters */
-double Rin,Rout,hslope,R0 ;
+double Rin,Rout,hslope,R0,fractheta ;
 double cour ;
 double dV,dx[NPR],startx[NPR] ;
 double dt ;

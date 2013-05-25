@@ -120,9 +120,9 @@ void gcov_func(double *X, double gcov[][NDIM])
 void set_points()
 {
         startx[1] = log(Rin - R0) ;
-        startx[2] = 0. ;
+        startx[2] = 0.+0.5*(1.-fractheta) ;
         dx[1] = log((Rout - R0)/(Rin - R0))/N1 ;
-        dx[2] = 1./N2 ;
+        dx[2] = fractheta/N2 ;
 }
 
 void fix_flux(double F1[][N2+4][NPR], double F2[][N2+4][NPR])

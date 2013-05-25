@@ -119,6 +119,7 @@ void init_torus()
 
         t = 0. ;
         hslope = 0.3 ;
+	fractheta = 1.;
 
         set_arrays() ;
         set_grid() ;
@@ -370,6 +371,7 @@ void init_monopole()
 
         t = 0. ;
         hslope = 1. ;
+	fractheta = 0.01;
 
         set_arrays() ;
         set_grid() ;

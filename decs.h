@@ -218,7 +218,7 @@ extern double a ;
 extern double gam ;
 
 /* numerical parameters */
-extern double Rin,Rout,hslope,R0 ;
+extern double Rin,Rout,hslope,R0,fractheta ;
 extern double cour ;
 extern double dV,dx[NPR],startx[NPR] ;
 extern double dt ;
