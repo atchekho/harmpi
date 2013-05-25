@@ -80,7 +80,7 @@ void fixup1zone( int i, int j, double pv[NPR] )
   bsq = bsq_calc(pv,&geom) ;
   
   //tie floors to the local values of magnetic field and internal energy density
-#if(0)
+#if(1)
   if( rhoflr < bsq / BSQORHOMAX ) rhoflr = bsq / BSQORHOMAX;
   if( uuflr < bsq / BSQOUMAX ) uuflr = bsq / BSQORHOMAX;
   if( rhoflr < pv[UU] / UORHOMAX ) rhoflr = pv[UU] / UORHOMAX;
