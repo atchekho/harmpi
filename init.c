@@ -365,7 +365,7 @@ void init_monopole()
         failed = 0 ;	/* start slow */
         cour = 0.9 ;
         dt = 1.e-5 ;
-	R0 = 0.0 ;
+	R0 = 0.7 ;
         Rin = 0.98*(1. + sqrt(1. - a*a)) ;
         Rout = 1e3 ;
 
