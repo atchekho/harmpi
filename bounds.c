@@ -125,7 +125,7 @@ void bound_prim( double prim[][N2+4][NPR] )
 	      }
 	      else {
 		//everything else copy (both poles)
-		prim[i][N2-1-j][k] = prim[i][jref][k];
+		prim[i][j][k] = prim[i][jref][k];
 		prim[i][N2-1-j][k] = prim[i][N2-1-jref][k];
 	      }
 	    }
