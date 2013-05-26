@@ -79,7 +79,7 @@
 #define UUMINLIMIT  (1.e-20)
 #define POWRHO (4)
 
-#define FLOORFACTOR (2.)
+#define FLOORFACTOR (1.)
 #define BSQORHOMAX (50.*FLOORFACTOR)
 #define BSQOUMAX (250.*FLOORFACTOR)
 #define UORHOMAX (50.*FLOORFACTOR)
