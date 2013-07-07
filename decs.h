@@ -50,10 +50,36 @@
 /*************************************************************************
       COMPILE-TIME PARAMETERS : 
 *************************************************************************/
+
+//which problem
+#define MONOPOLE_PROBLEM_1D 1
+#define MONOPOLE_PROBLEM_2D 2
+#define TORUS_PROBLEM 2
+#define BONDI_PROBLEM_1D 3
+#define BONDI_PROBLEM_2D 4
+
+#define WHICHPROBLEM MONOPOLE_PROBLEM_1D
+
+
 /** here are the few things that we change frequently **/
 
+#if WHICHPROBLEM == MONOPOLE_PROBLEM_1D
 #define N1       (2*386)        /* number of physical zones in X1-direction */
 #define N2       (1)        /* number of physical zones in X2-direction */
+#elif WHICHPROBLEM == MONOPOLE_PROBLEM_2D
+#define N1       (2*386)        /* number of physical zones in X1-direction */
+#define N2       (256)        /* number of physical zones in X2-direction */
+#elif WHICHPROBLEM == TORUS_PROBLEM
+#define N1       (256)        /* number of physical zones in X1-direction */
+#define N2       (256)        /* number of physical zones in X2-direction */
+#elif WHICHPROBLEM == BONDI_PROBLEM_1D
+#define N1       (256)        /* number of physical zones in X1-direction */
+#define N2       (1)        /* number of physical zones in X2-direction */
+#elif WHICHPROBLEM == BONDI_PROBLEM_2D
+#define N1       (256)        /* number of physical zones in X1-direction */
+#define N2       (256)        /* number of physical zones in X2-direction */
+#endif
+
 
 #define NPR        (8)        /* number of primitive variables */
 #define NDIM       (4)        /* number of total dimensions.  Never changes */

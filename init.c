@@ -56,11 +56,6 @@
 
 void coord_transform(double *pr,int i, int j) ;
 
-#define MONOPOLE_PROBLEM 1
-#define TORUS_PROBLEM 2
-
-#define WHICHPROBLEM MONOPOLE_PROBLEM
-
 
 void init()
 {
