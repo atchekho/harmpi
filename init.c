@@ -120,7 +120,7 @@ void init_torus()
         t = 0. ;
         hslope = 0.3 ;
 
-	if(N2 != 1) {
+	if(N2!=1) {
 	  //2D problem, use full pi-wedge in theta
 	  fractheta = 1.;
 	}

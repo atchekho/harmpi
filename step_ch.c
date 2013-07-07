@@ -226,15 +226,15 @@ double fluxcalc(
 	void rescale(double *pr, int which, int dir, int ii, int jj, int face, struct of_geom *geom) ;
 	double bsq ;
 
-#if(N2==1)
-	//if a 1D problem, reset fluxes in 2-direction to zero so no evolution due to 2-direction
-	ZSLOOP(-1,N1,-1,N2) PLOOP {
-	  dq[i][j][k] = 0.;
-	  F[i][j][k] = 0.;
+	if(N2==1 && dir == 2) {
+	  //if a 1D problem, reset fluxes in 2-direction to zero so no evolution due to 2-direction
+	  ZSLOOP(-1,N1,-1,N2) PLOOP {
+	    dq[i][j][k] = 0.;
+	    F[i][j][k] = 0.;
+	  }
+	  ndt = 1.e9;
+	  return(ndt) ;
 	}
-	ndt = 1.e9;
-	return(ndt) ;
-#endif
 
         if     (dir == 1) {idel = 1; jdel = 0; face = FACE1;}
 	else if(dir == 2) {idel = 0; jdel = 1; face = FACE2;}
@@ -345,6 +345,7 @@ void flux_ct(double F1[][N2+4][NPR], double F2[][N2+4][NPR])
 	int i,j ;
 	static double emf[N1+1][N2+1] ;
 
+#if(N2!=1)
 	/* calculate EMFs */
 	/* Toth approach: just average */
 	ZSLOOP(0,N1,0,N2) emf[i][j] = 0.25*(F1[i][j][B2] + F1[i][j-1][B2]
@@ -359,7 +360,7 @@ void flux_ct(double F1[][N2+4][NPR], double F2[][N2+4][NPR])
                 F2[i][j][B1] = -0.5*(emf[i][j] + emf[i+1][j]) ;
                 F2[i][j][B2] = 0. ;
 	}
-
+#endif
 }
 
 
