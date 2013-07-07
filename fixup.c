@@ -81,12 +81,10 @@ void fixup1zone( int i, int j, double pv[NPR] )
   
   //tie floors to the local values of magnetic field and internal energy density
 #if(1)
-  if( rhoflr < bsq / BSQORHOMAX && bsq == bsq) rhoflr = bsq / BSQORHOMAX;
-  if( uuflr < bsq / BSQOUMAX && bsq == bsq ) uuflr = bsq / BSQOUMAX;
-  if( rhoflr < pv[UU] / UORHOMAX && bsq == bsq ) rhoflr = pv[UU] / UORHOMAX;
+  if( rhoflr < bsq / BSQORHOMAX ) rhoflr = bsq / BSQORHOMAX;
+  if( uuflr < bsq / BSQOUMAX ) uuflr = bsq / BSQOUMAX;
+  if( rhoflr < pv[UU] / UORHOMAX ) rhoflr = pv[UU] / UORHOMAX;
 #endif
-
-  fprintf(stderr,"testing the output: rhoflr = %g, bsq = %g\n", rhoflr, bsq);
 
   if( rhoflr < RHOMINLIMIT ) rhoflr = RHOMINLIMIT;
   if( uuflr  < UUMINLIMIT  ) uuflr  = UUMINLIMIT;
