@@ -345,22 +345,26 @@ void flux_ct(double F1[][N2+4][NPR], double F2[][N2+4][NPR])
 	int i,j ;
 	static double emf[N1+1][N2+1] ;
 
-#if(N2!=1)
 	/* calculate EMFs */
 	/* Toth approach: just average */
 	ZSLOOP(0,N1,0,N2) emf[i][j] = 0.25*(F1[i][j][B2] + F1[i][j-1][B2]
-					  - F2[i][j][B1] - F2[i-1][j][B1]) ;
-
+#if(N2!=1)
+					  - F2[i][j][B1] - F2[i-1][j][B1]
+#endif
+					    ) ;
 	/* rewrite EMFs as fluxes, after Toth */
         ZSLOOP(0,N1,0,N2-1) {
                 F1[i][j][B1] = 0. ;
                 F1[i][j][B2] =  0.5*(emf[i][j] + emf[i][j+1]) ;
         }
         ZSLOOP(0,N1-1,0,N2) {
+#if(N2!=1)
                 F2[i][j][B1] = -0.5*(emf[i][j] + emf[i+1][j]) ;
+#else
+                F2[i][j][B1] = 0.;
+#endif
                 F2[i][j][B2] = 0. ;
 	}
-#endif
 }
 
 
