@@ -224,6 +224,16 @@ double fluxcalc(
 	void rescale(double *pr, int which, int dir, int ii, int jj, int face, struct of_geom *geom) ;
 	double bsq ;
 
+#if(N2==1)
+	//if a 1D problem, reset fluxes in 2-direction to zero so no evolution due to 2-direction
+	ZSLOOP(-1,N1,-1,N2) PLOOP {
+	  dq[i][j][k] = 0.;
+	  F[i][j][k] = 0.;
+	}
+	ndt = 1.e9;
+	return(ndt) ;
+#endif
+
         if     (dir == 1) {idel = 1; jdel = 0; face = FACE1;}
 	else if(dir == 2) {idel = 0; jdel = 1; face = FACE2;}
 	else { exit(10); }
