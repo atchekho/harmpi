@@ -171,7 +171,9 @@ double advance(
     PLOOP {
       U[k] += Dt*(
 		  - (F1[i+1][j][k] - F1[i][j][k])/dx[1]
+#if( N2 != 1 )
 		  - (F2[i][j+1][k] - F2[i][j][k])/dx[2]
+#endif
 		  + dU[k]
 		  ) ;
     }
