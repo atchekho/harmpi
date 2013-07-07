@@ -119,7 +119,15 @@ void init_torus()
 
         t = 0. ;
         hslope = 0.3 ;
-	fractheta = 1.;
+
+	if(N2 != 1) {
+	  //2D problem, use full pi-wedge in theta
+	  fractheta = 1.;
+	}
+	else{
+	  //1D problem (since only 1 cell in theta-direction), use a restricted theta-wedge
+	  fractheta = 1.e-2;
+	}
 
         set_arrays() ;
         set_grid() ;
