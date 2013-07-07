@@ -147,3 +147,108 @@ void dump(FILE *fp)
 	}
 }
 
+void gdump(FILE *fp)
+{
+  int i,j,k,l ;
+	double divb ;
+	double X[NDIM] ;
+	double r,th,vmin,vmax ;
+	struct of_geom geom ;
+	struct of_state q ;
+	double tfac, rfac, hfac, pfac;
+
+	/***************************************************************
+	  Write header information : 
+	***************************************************************/
+
+	fprintf(fp, FMT_DBL_OUT, t        );
+	fprintf(fp, FMT_INT_OUT, N1       );
+	fprintf(fp, FMT_INT_OUT, N2       );
+	fprintf(fp, FMT_DBL_OUT, startx[1]);
+	fprintf(fp, FMT_DBL_OUT, startx[2]);
+	fprintf(fp, FMT_DBL_OUT, dx[1]    );
+	fprintf(fp, FMT_DBL_OUT, dx[2]    );
+	fprintf(fp, FMT_DBL_OUT, tf       );
+	fprintf(fp, FMT_INT_OUT, nstep    );
+	fprintf(fp, FMT_DBL_OUT, a        );
+	fprintf(fp, FMT_DBL_OUT, gam      );
+	fprintf(fp, FMT_DBL_OUT, cour     );
+	fprintf(fp, FMT_DBL_OUT, DTd      );
+	fprintf(fp, FMT_DBL_OUT, DTl      );
+	fprintf(fp, FMT_DBL_OUT, DTi      );
+	fprintf(fp, FMT_INT_OUT, DTr      );
+	fprintf(fp, FMT_INT_OUT, dump_cnt );
+	fprintf(fp, FMT_INT_OUT, image_cnt);
+	fprintf(fp, FMT_INT_OUT, rdump_cnt);
+	fprintf(fp, FMT_DBL_OUT, dt       );
+	fprintf(fp, FMT_INT_OUT, lim      );
+	fprintf(fp, FMT_INT_OUT, failed   );
+	fprintf(fp, FMT_DBL_OUT, Rin      );
+	fprintf(fp, FMT_DBL_OUT, Rout     );
+	fprintf(fp, FMT_DBL_OUT, hslope   );
+	fprintf(fp, FMT_DBL_OUT, R0       );
+
+	fprintf(fp,"\n") ;
+		
+	/***************************************************************
+	  Write header information : 
+	***************************************************************/
+
+	ZSLOOP(0,N1-1,0,N2-1) {
+		coord(i,j,CENT,X) ;
+		bl_coord(X,&r,&th) ;
+
+		//drdx
+		tfac = 1. ;
+		rfac = r - R0 ;
+		hfac = M_PI + (1. - hslope)*M_PI*cos(2.*M_PI*X[2]) ;
+		pfac = 1. ;
+
+		fprintf(fp, FMT_INT_OUT, i       );
+		fprintf(fp, FMT_INT_OUT, j       );
+		fprintf(fp, FMT_DBL_OUT, X[1]       );
+		fprintf(fp, FMT_DBL_OUT, X[2]       );
+		fprintf(fp, FMT_DBL_OUT, r          );
+		fprintf(fp, FMT_DBL_OUT, th         );
+
+		if(!failed) {
+			get_geometry(i,j,CENT,&geom) ;
+
+			//g_{kl}
+			for(k=0;k<NDIM;k++) 
+			  for(l=0;l<NDIM;l++) 
+			    fprintf(fp,FMT_DBL_OUT,geom.gcov[k][l]) ;
+
+			//g^{kl}
+			for(k=0;k<NDIM;k++) 
+			  for(l=0;l<NDIM;l++) 
+			    fprintf(fp,FMT_DBL_OUT,geom.gcon[k][l]) ;
+
+			//(-deg(g))**0.5
+			fprintf(fp, FMT_DBL_OUT, geom.g );
+
+			//dr^i/dx^j
+			for(k=0;k<NDIM;k++) {
+			  for(l=0;l<NDIM;l++) {
+			    if(k==0 && l==0){
+			      fprintf(fp,FMT_DBL_OUT,tfac) ;
+			    }
+			    else if(k==1 && l==1){
+			      fprintf(fp,FMT_DBL_OUT,rfac) ;
+			    }
+			    else if(k==2 && l==2){
+			      fprintf(fp,FMT_DBL_OUT,hfac) ;
+			    }
+			    else if(k==3 && l==3){
+			      fprintf(fp,FMT_DBL_OUT,pfac) ;
+			    }
+			    else{
+			      fprintf(fp,FMT_DBL_OUT,(double)0.) ;
+			    }
+			  }
+			}
+		}
+
+		fprintf(fp,"\n") ;
+	}
+}

@@ -325,6 +325,7 @@ void coord(int i, int j, int loc, double *X) ;
 void diag(int call_code) ;
 void diag_flux(double F1[][N2+4][NPR], double F2[][N2+4][NPR]) ;
 void dump(FILE *fp) ;
+void gdump(FILE *fp) ;
 
 void fail(int fail_type) ;
 void fixup(double (* pv)[N2+4][NPR]) ;

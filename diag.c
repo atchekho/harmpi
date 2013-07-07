@@ -139,6 +139,22 @@ int call_code ;
 	}
 
 
+	/* gdump only at code start */
+	if(call_code == INIT_OUT) {
+		/* make grid dump file */
+		sprintf(dfnam,"dumps/gdump") ;
+		fprintf(stderr,"GDUMP    file=%s\n",dfnam) ;
+		dump_file = fopen(dfnam,"w") ;
+
+		if(dump_file==NULL) {
+			fprintf(stderr,"error opening grid dump file\n") ;
+			exit(2) ;
+		}
+
+		gdump(dump_file) ;
+		fclose(dump_file) ;
+	}
+
 	/* dump at regular intervals */
 	if(call_code == INIT_OUT || 
 	   call_code == DUMP_OUT ||
