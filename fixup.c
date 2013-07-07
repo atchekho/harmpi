@@ -86,6 +86,8 @@ void fixup1zone( int i, int j, double pv[NPR] )
   if( rhoflr < pv[UU] / UORHOMAX ) rhoflr = pv[UU] / UORHOMAX;
 #endif
 
+  fprintf(stderr,"testing the output: rhoflr = %g, bsq = %g\n", rhoflr, bsq);
+
   if( rhoflr < RHOMINLIMIT ) rhoflr = RHOMINLIMIT;
   if( uuflr  < UUMINLIMIT  ) uuflr  = UUMINLIMIT;
 
