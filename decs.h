@@ -52,7 +52,7 @@
 *************************************************************************/
 /** here are the few things that we change frequently **/
 
-#define N1       (386)        /* number of physical zones in X1-direction */
+#define N1       (2*386)        /* number of physical zones in X1-direction */
 #define N2       (1)        /* number of physical zones in X2-direction */
 
 #define NPR        (8)        /* number of primitive variables */
