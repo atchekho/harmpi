@@ -109,7 +109,7 @@ void bound_prim( double prim[][N2+4][NPR] )
 	  inflow_check(prim[N1+1][j],i,j,1) ;
 	}
 
-#if(POLEFIX)
+#if(POLEFIX && POLEFIX < N2/2)
 	//copy all densities and B^phi in; interpolate linearly transverse velocity
 	jref = POLEFIX;
         for(i=-2;i<N1+2;i++) {
