@@ -58,7 +58,7 @@
 #define BONDI_PROBLEM_1D 4
 #define BONDI_PROBLEM_2D 5
 
-#define WHICHPROBLEM BONDI_PROBLEM_1D
+#define WHICHPROBLEM MONOPOLE_PROBLEM_1D
 
 
 /** here are the few things that we change frequently **/
