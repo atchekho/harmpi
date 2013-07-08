@@ -592,7 +592,7 @@ void init_monopole()
 	rhor = (1. + sqrt(1. - a*a)) ;
 	R0 = -4*rhor ;
         Rin = 0.7*rhor ;
-        Rout = 1000 ;
+        Rout = 1e4 ;
 
         t = 0. ;
         hslope = 1. ;
