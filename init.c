@@ -345,6 +345,7 @@ void init_bondi()
 	double ur,uh,up,u,rho ;
 	double X[NDIM] ;
 	struct of_geom geom ;
+	double rhor;
 
 	/* for disk interior */
 	double l,rin,lnh,expm2chi,up1 ;
@@ -372,8 +373,9 @@ void init_bondi()
         failed = 0 ;	/* start slow */
         cour = 0.9 ;
         dt = 1.e-5 ;
-	R0 = 0.0 ;
-        Rin = 0.98*(1. + sqrt(1. - a*a)) ;
+	rhor = (1. + sqrt(1. - a*a)) ;
+	R0 = -2*rhor ;
+        Rin = 0.5*rhor ;
         Rout = 1e3 ;
 
         t = 0. ;
@@ -397,7 +399,7 @@ void init_bondi()
 	fprintf(stderr,"rmin/rm: %g\n",r/(1. + sqrt(1. - a*a))) ;
 
         /* output choices */
-	tf = 2000.0 ;
+	tf = Rout ;
 
 	DTd = 50. ;	/* dumping frequency, in units of M */
 	DTl = 2. ;	/* logfile frequency, in units of M */
@@ -558,6 +560,7 @@ void init_monopole()
 	double ur,uh,up,u,rho ;
 	double X[NDIM] ;
 	struct of_geom geom ;
+	double rhor;
 
 	/* for disk interior */
 	double l,rin,lnh,expm2chi,up1 ;
@@ -586,8 +589,9 @@ void init_monopole()
         failed = 0 ;	/* start slow */
         cour = 0.9 ;
         dt = 1.e-5 ;
-	R0 = 0. ;
-        Rin = 0.9*(1. + sqrt(1. - a*a)) ;
+	rhor = (1. + sqrt(1. - a*a)) ;
+	R0 = -2*rhor ;
+        Rin = 0.9*rhor ;
         Rout = 1000 ;
 
         t = 0. ;
@@ -611,7 +615,7 @@ void init_monopole()
 	fprintf(stderr,"rmin/rm: %g\n",r/(1. + sqrt(1. - a*a))) ;
 
         /* output choices */
-	tf = 2000.0 ;
+	tf = Rout ;
 
 	DTd = 10. ;	/* dumping frequency, in units of M */
 	DTl = 50. ;	/* logfile frequency, in units of M */
