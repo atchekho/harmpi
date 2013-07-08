@@ -64,7 +64,7 @@
 /** here are the few things that we change frequently **/
 
 #if WHICHPROBLEM == MONOPOLE_PROBLEM_1D
-#define N1       (2*386)      /* number of physical zones in X1-direction */
+#define N1       (386)      /* number of physical zones in X1-direction */
 #define N2       (1)          /* number of physical zones in X2-direction */
 #elif WHICHPROBLEM == MONOPOLE_PROBLEM_2D
 #define N1       (2*386)      /* number of physical zones in X1-direction */
