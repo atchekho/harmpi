@@ -54,9 +54,10 @@
 //which problem
 #define MONOPOLE_PROBLEM_1D 1
 #define MONOPOLE_PROBLEM_2D 2
-#define TORUS_PROBLEM 3
-#define BONDI_PROBLEM_1D 4
-#define BONDI_PROBLEM_2D 5
+#define BZ_MONOPOLE_2D 3
+#define TORUS_PROBLEM 4
+#define BONDI_PROBLEM_1D 5
+#define BONDI_PROBLEM_2D 6
 
 #define WHICHPROBLEM MONOPOLE_PROBLEM_1D
 
@@ -64,11 +65,14 @@
 /** here are the few things that we change frequently **/
 
 #if WHICHPROBLEM == MONOPOLE_PROBLEM_1D
-#define N1       (386)      /* number of physical zones in X1-direction */
+#define N1       (2*386)      /* number of physical zones in X1-direction */
 #define N2       (1)          /* number of physical zones in X2-direction */
 #elif WHICHPROBLEM == MONOPOLE_PROBLEM_2D
 #define N1       (2*386)      /* number of physical zones in X1-direction */
 #define N2       (256)        /* number of physical zones in X2-direction */
+#elif WHICHPROBLEM == BZ_MONOPOLE_2D
+#define N1       (128)      /* number of physical zones in X1-direction */
+#define N2       (128)        /* number of physical zones in X2-direction */
 #elif WHICHPROBLEM == TORUS_PROBLEM
 #define N1       (256)        /* number of physical zones in X1-direction */
 #define N2       (256)        /* number of physical zones in X2-direction */

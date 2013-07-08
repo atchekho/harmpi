@@ -61,12 +61,15 @@ void init()
 {
   void init_bondi(void);
   void init_torus(void);
-  void init_monopole(void);
+  void init_monopole(double Rout_val);
 
   switch( WHICHPROBLEM ) {
   case MONOPOLE_PROBLEM_1D:
   case MONOPOLE_PROBLEM_2D:
-    init_monopole();
+    init_monopole(1e3);
+    break;
+  case BZ_MONOPOLE_2D:
+    init_monopole(1e2);
     break;
   case TORUS_PROBLEM:
     init_torus();
@@ -553,7 +556,7 @@ void init_bondi()
 
 }
 
-void init_monopole()
+void init_monopole(double Rout_val)
 {
 	int i,j ;
 	double r,th,sth,cth ;
@@ -592,7 +595,7 @@ void init_monopole()
 	rhor = (1. + sqrt(1. - a*a)) ;
 	R0 = -4*rhor ;
         Rin = 0.7*rhor ;
-        Rout = 1e3 ;
+        Rout = Rout_val ;
 
         t = 0. ;
         hslope = 1. ;
