@@ -404,7 +404,7 @@ void init_bondi()
 	DTd = 50. ;	/* dumping frequency, in units of M */
 	DTl = 2. ;	/* logfile frequency, in units of M */
 	DTi = 2. ; 	/* image file frequ., in units of M */
-	DTr = 100 ; 	/* restart file frequ., in timesteps */
+	DTr = 1000 ; 	/* restart file frequ., in timesteps */
 
 	/* start diagnostic counters */
 	dump_cnt = 0 ;
@@ -590,8 +590,8 @@ void init_monopole()
         cour = 0.9 ;
         dt = 1.e-5 ;
 	rhor = (1. + sqrt(1. - a*a)) ;
-	R0 = -2*rhor ;
-        Rin = 0.9*rhor ;
+	R0 = -4*rhor ;
+        Rin = 0.7*rhor ;
         Rout = 1000 ;
 
         t = 0. ;
@@ -620,7 +620,7 @@ void init_monopole()
 	DTd = 10. ;	/* dumping frequency, in units of M */
 	DTl = 50. ;	/* logfile frequency, in units of M */
 	DTi = 50. ; 	/* image file frequ., in units of M */
-	DTr = 100 ; 	/* restart file frequ., in timesteps */
+	DTr = 1000 ; 	/* restart file frequ., in timesteps */
 
 	/* start diagnostic counters */
 	dump_cnt = 0 ;
