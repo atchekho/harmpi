@@ -59,15 +59,21 @@ void coord_transform(double *pr,int i, int j) ;
 
 void init()
 {
+  void init_bondi(void);
   void init_torus(void);
   void init_monopole(void);
 
   switch( WHICHPROBLEM ) {
-  case MONOPOLE_PROBLEM:
+  case MONOPOLE_PROBLEM_1D:
+  case MONOPOLE_PROBLEM_2D:
     init_monopole();
     break;
   case TORUS_PROBLEM:
     init_torus();
+    break;
+  case BONDI_PROBLEM_1D:
+  case BONDI_PROBLEM_2D:
+    init_bondi();
     break;
   }
 
@@ -332,6 +338,218 @@ void init_torus()
 
 }
 
+void init_bondi()
+{
+	int i,j ;
+	double r,th,sth,cth ;
+	double ur,uh,up,u,rho ;
+	double X[NDIM] ;
+	struct of_geom geom ;
+
+	/* for disk interior */
+	double l,rin,lnh,expm2chi,up1 ;
+	double DD,AA,SS,thin,sthin,cthin,DDin,AAin,SSin ;
+	double kappa,hm1 ;
+
+	/* for magnetic field */
+	double A[N1+1][N2+1] ;
+	double rho_av,rhomax,umax,beta,bsq_ij,bsq_max,norm,q,beta_act ;
+	double rmax, lfish_calc(double rmax) ;
+
+	/* some physics parameters */
+	gam = 4./3. ;
+
+	/* black hole parameters */
+        a = 0.9375 ;
+
+	kappa = 1.e-3 ;
+
+	/* radius of the inner edge of the initial density distribution */
+	rin = 10.;
+
+        /* some numerical parameters */
+        lim = MC ;
+        failed = 0 ;	/* start slow */
+        cour = 0.9 ;
+        dt = 1.e-5 ;
+	R0 = 0.0 ;
+        Rin = 0.98*(1. + sqrt(1. - a*a)) ;
+        Rout = 1e3 ;
+
+        t = 0. ;
+        hslope = 1.0 ; //uniform angular grid
+
+	if(N2!=1) {
+	  //2D problem, use full pi-wedge in theta
+	  fractheta = 1.;
+	}
+	else{
+	  //1D problem (since only 1 cell in theta-direction), use a restricted theta-wedge
+	  fractheta = 1.e-2;
+	}
+
+        set_arrays() ;
+        set_grid() ;
+
+	coord(-2,0,CENT,X) ;
+	bl_coord(X,&r,&th) ;
+	fprintf(stderr,"rmin: %g\n",r) ;
+	fprintf(stderr,"rmin/rm: %g\n",r/(1. + sqrt(1. - a*a))) ;
+
+        /* output choices */
+	tf = 2000.0 ;
+
+	DTd = 50. ;	/* dumping frequency, in units of M */
+	DTl = 2. ;	/* logfile frequency, in units of M */
+	DTi = 2. ; 	/* image file frequ., in units of M */
+	DTr = 100 ; 	/* restart file frequ., in timesteps */
+
+	/* start diagnostic counters */
+	dump_cnt = 0 ;
+	image_cnt = 0 ;
+	rdump_cnt = 0 ;
+	defcon = 1. ;
+
+	rhomax = 0. ;
+	umax = 0. ;
+	ZSLOOP(0,N1-1,0,N2-1) {
+		coord(i,j,CENT,X) ;
+		bl_coord(X,&r,&th) ;
+
+		sth = sin(th) ;
+		cth = cos(th) ;
+
+		/* regions outside uniform density distribution */
+		if(r < rin) {
+			rho = 1.e-7*RHOMIN ;
+                        u = 1.e-7*UUMIN ;
+
+			/* these values are demonstrably physical
+			   for all values of a and r */
+			/*
+                        ur = -1./(r*r) ;
+                        uh = 0. ;
+			up = 0. ;
+			*/
+
+			ur = 0. ;
+			uh = 0. ;
+			up = 0. ;
+
+			/*
+			get_geometry(i,j,CENT,&geom) ;
+                        ur = geom.gcon[0][1]/geom.gcon[0][0] ;
+                        uh = geom.gcon[0][2]/geom.gcon[0][0] ;
+                        up = geom.gcon[0][3]/geom.gcon[0][0] ;
+			*/
+
+			p[i][j][RHO] = rho ;
+			p[i][j][UU] = u ;
+			p[i][j][U1] = ur ;
+			p[i][j][U2] = uh ;
+			p[i][j][U3] = up ;
+		}
+		/* region inside initial uniform density */
+		else { 
+		  rho = 1.;
+		  u = kappa*pow(rho,gam)/(gam - 1.) ;
+		  ur = 0. ;
+		  uh = 0. ;
+
+
+		  p[i][j][RHO] = rho ;
+		  if(rho > rhomax) rhomax = rho ;
+		  p[i][j][UU] = u;
+		  if(u > umax && r > rin) umax = u ;
+		  p[i][j][U1] = ur ;
+		  p[i][j][U2] = uh ;
+		  
+		  p[i][j][U3] = up ;
+		  
+		  /* convert from 4-vel to 3-vel */
+		  coord_transform(p[i][j],i,j) ;
+		}
+
+		p[i][j][B1] = 0. ;
+		p[i][j][B2] = 0. ;
+		p[i][j][B3] = 0. ;
+
+	}
+
+	fixup(p) ;
+	bound_prim(p) ;
+
+#if(0) //disable for now
+	/* first find corner-centered vector potential */
+	ZSLOOP(0,N1,0,N2) A[i][j] = 0. ;
+        ZSLOOP(0,N1,0,N2) {
+                /* vertical field version */
+                /*
+                coord(i,j,CORN,X) ;
+                bl_coord(X,&r,&th) ;
+
+                A[i][j] = 0.5*r*sin(th) ;
+                */
+
+                /* field-in-disk version */
+		/* flux_ct */
+                rho_av = 0.25*(
+                        p[i][j][RHO] +
+                        p[i-1][j][RHO] +
+                        p[i][j-1][RHO] +
+                        p[i-1][j-1][RHO]) ;
+
+                q = rho_av/rhomax - 0.2 ;
+                if(q > 0.) A[i][j] = q ;
+
+        }
+
+	/* now differentiate to find cell-centered B,
+	   and begin normalization */
+	bsq_max = 0. ;
+	ZLOOP {
+		get_geometry(i,j,CENT,&geom) ;
+
+		/* flux-ct */
+		p[i][j][B1] = -(A[i][j] - A[i][j+1] 
+				+ A[i+1][j] - A[i+1][j+1])/(2.*dx[2]*geom.g) ;
+		p[i][j][B2] = (A[i][j] + A[i][j+1] 
+				- A[i+1][j] - A[i+1][j+1])/(2.*dx[1]*geom.g) ;
+
+		p[i][j][B3] = 0. ;
+
+		bsq_ij = bsq_calc(p[i][j],&geom) ;
+		if(bsq_ij > bsq_max) bsq_max = bsq_ij ;
+	}
+	fprintf(stderr,"initial bsq_max: %g\n",bsq_max) ;
+
+	/* finally, normalize to set field strength */
+	beta_act = (gam - 1.)*umax/(0.5*bsq_max) ;
+	fprintf(stderr,"initial beta: %g (should be %g)\n",beta_act,beta) ;
+	norm = sqrt(beta_act/beta) ;
+	bsq_max = 0. ;
+	ZLOOP {
+		p[i][j][B1] *= norm ;
+		p[i][j][B2] *= norm ;
+
+		get_geometry(i,j,CENT,&geom) ;
+		bsq_ij = bsq_calc(p[i][j],&geom) ;
+		if(bsq_ij > bsq_max) bsq_max = bsq_ij ;
+	}
+	beta_act = (gam - 1.)*umax/(0.5*bsq_max) ;
+	fprintf(stderr,"final beta: %g (should be %g)\n",beta_act,beta) ;
+
+	/* enforce boundary conditions */
+	fixup(p) ;
+	bound_prim(p) ;
+#endif
+
+#if( DO_FONT_FIX ) 
+	set_Katm();
+#endif 
+
+
+}
 
 void init_monopole()
 {
@@ -374,7 +592,15 @@ void init_monopole()
 
         t = 0. ;
         hslope = 1. ;
-	fractheta = 1.;
+
+	if(N2!=1) {
+	  //2D problem, use full pi-wedge in theta
+	  fractheta = 1.;
+	}
+	else{
+	  //1D problem (since only 1 cell in theta-direction), use a restricted theta-wedge
+	  fractheta = 1.e-2;
+	}
 
         set_arrays() ;
         set_grid() ;
