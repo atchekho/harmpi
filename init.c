@@ -69,7 +69,7 @@ void init()
     init_monopole(1e3);
     break;
   case BZ_MONOPOLE_2D:
-    init_monopole(1e2);
+    init_monopole(30);
     break;
   case TORUS_PROBLEM:
     init_torus();
