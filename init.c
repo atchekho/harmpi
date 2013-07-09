@@ -69,7 +69,7 @@ void init()
     init_monopole(1e3);
     break;
   case BZ_MONOPOLE_2D:
-    init_monopole(30);
+    init_monopole(100.);
     break;
   case TORUS_PROBLEM:
     init_torus();
@@ -618,7 +618,7 @@ void init_monopole(double Rout_val)
 	fprintf(stderr,"rmin/rm: %g\n",r/(1. + sqrt(1. - a*a))) ;
 
         /* output choices */
-	tf = Rout ;
+	tf = 2*Rout ;
 
 	DTd = 10. ;	/* dumping frequency, in units of M */
 	DTl = 50. ;	/* logfile frequency, in units of M */
