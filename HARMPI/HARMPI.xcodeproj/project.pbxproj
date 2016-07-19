@@ -1,0 +1,375 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0C2E11E61A9B055B00A3678C /* mpi.c in Sources */ = {isa = PBXBuildFile; fileRef = 0C2E11E41A9B055B00A3678C /* mpi.c */; };
+		0C2E11E71A9B055B00A3678C /* mpi.h in Headers */ = {isa = PBXBuildFile; fileRef = 0C2E11E51A9B055B00A3678C /* mpi.h */; };
+		0C677E8918F32F7100EE533A /* interp.c in Sources */ = {isa = PBXBuildFile; fileRef = 0C677E7118F32F7100EE533A /* interp.c */; };
+		0C677E8A18F32F7100EE533A /* lu.c in Sources */ = {isa = PBXBuildFile; fileRef = 0C677E7218F32F7100EE533A /* lu.c */; };
+		0C677E8B18F32F7100EE533A /* ranc.c in Sources */ = {isa = PBXBuildFile; fileRef = 0C677E7318F32F7100EE533A /* ranc.c */; };
+		0C677E8C18F32F7100EE533A /* restart.c in Sources */ = {isa = PBXBuildFile; fileRef = 0C677E7418F32F7100EE533A /* restart.c */; };
+		0C677E8D18F32F7100EE533A /* u2p_util.c in Sources */ = {isa = PBXBuildFile; fileRef = 0C677E7518F32F7100EE533A /* u2p_util.c */; };
+		0C677E8E18F32F7100EE533A /* u2p_util.h in Headers */ = {isa = PBXBuildFile; fileRef = 0C677E7618F32F7100EE533A /* u2p_util.h */; };
+		0C677E8F18F32F7100EE533A /* image.c in Sources */ = {isa = PBXBuildFile; fileRef = 0C677E7718F32F7100EE533A /* image.c */; };
+		0C677E9018F32F7100EE533A /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 0C677E7818F32F7100EE533A /* main.c */; };
+		0C677E9118F32F7100EE533A /* metric.c in Sources */ = {isa = PBXBuildFile; fileRef = 0C677E7918F32F7100EE533A /* metric.c */; };
+		0C677E9218F32F7100EE533A /* phys.c in Sources */ = {isa = PBXBuildFile; fileRef = 0C677E7A18F32F7100EE533A /* phys.c */; };
+		0C677E9318F32F7100EE533A /* utoprim_1dfix1.c in Sources */ = {isa = PBXBuildFile; fileRef = 0C677E7B18F32F7100EE533A /* utoprim_1dfix1.c */; };
+		0C677E9418F32F7100EE533A /* utoprim_2d.c in Sources */ = {isa = PBXBuildFile; fileRef = 0C677E7C18F32F7100EE533A /* utoprim_2d.c */; };
+		0C677E9518F32F7100EE533A /* utoprim_1dvsq2fix1.c in Sources */ = {isa = PBXBuildFile; fileRef = 0C677E7D18F32F7100EE533A /* utoprim_1dvsq2fix1.c */; };
+		0C677E9618F32F7100EE533A /* u2p_defs.h in Headers */ = {isa = PBXBuildFile; fileRef = 0C677E7E18F32F7100EE533A /* u2p_defs.h */; };
+		0C677E9718F32F7100EE533A /* image_interp.c in Sources */ = {isa = PBXBuildFile; fileRef = 0C677E7F18F32F7100EE533A /* image_interp.c */; };
+		0C677E9818F32F7100EE533A /* coord.c in Sources */ = {isa = PBXBuildFile; fileRef = 0C677E8018F32F7100EE533A /* coord.c */; };
+		0C677E9918F32F7100EE533A /* defs.h in Headers */ = {isa = PBXBuildFile; fileRef = 0C677E8118F32F7100EE533A /* defs.h */; };
+		0C677E9A18F32F7100EE533A /* diag.c in Sources */ = {isa = PBXBuildFile; fileRef = 0C677E8218F32F7100EE533A /* diag.c */; };
+		0C677E9B18F32F7100EE533A /* dump.c in Sources */ = {isa = PBXBuildFile; fileRef = 0C677E8318F32F7100EE533A /* dump.c */; };
+		0C677E9C18F32F7100EE533A /* fixup.c in Sources */ = {isa = PBXBuildFile; fileRef = 0C677E8418F32F7100EE533A /* fixup.c */; };
+		0C677E9D18F32F7100EE533A /* step_ch.c in Sources */ = {isa = PBXBuildFile; fileRef = 0C677E8518F32F7100EE533A /* step_ch.c */; };
+		0C677E9E18F32F7100EE533A /* bounds.c in Sources */ = {isa = PBXBuildFile; fileRef = 0C677E8618F32F7100EE533A /* bounds.c */; };
+		0C677E9F18F32F7100EE533A /* init.c in Sources */ = {isa = PBXBuildFile; fileRef = 0C677E8718F32F7100EE533A /* init.c */; };
+		0C677EA018F32F7100EE533A /* decs.h in Headers */ = {isa = PBXBuildFile; fileRef = 0C677E8818F32F7100EE533A /* decs.h */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0C2E11E41A9B055B00A3678C /* mpi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mpi.c; path = ../mpi.c; sourceTree = "<group>"; };
+		0C2E11E51A9B055B00A3678C /* mpi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mpi.h; path = ../mpi.h; sourceTree = "<group>"; };
+		0C677E6C18F32F4100EE533A /* libDummy.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libDummy.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		0C677E7118F32F7100EE533A /* interp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = interp.c; path = ../interp.c; sourceTree = "<group>"; };
+		0C677E7218F32F7100EE533A /* lu.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = lu.c; path = ../lu.c; sourceTree = "<group>"; };
+		0C677E7318F32F7100EE533A /* ranc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ranc.c; path = ../ranc.c; sourceTree = "<group>"; };
+		0C677E7418F32F7100EE533A /* restart.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = restart.c; path = ../restart.c; sourceTree = "<group>"; };
+		0C677E7518F32F7100EE533A /* u2p_util.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = u2p_util.c; path = ../u2p_util.c; sourceTree = "<group>"; };
+		0C677E7618F32F7100EE533A /* u2p_util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = u2p_util.h; path = ../u2p_util.h; sourceTree = "<group>"; };
+		0C677E7718F32F7100EE533A /* image.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = image.c; path = ../image.c; sourceTree = "<group>"; };
+		0C677E7818F32F7100EE533A /* main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = main.c; path = ../main.c; sourceTree = "<group>"; };
+		0C677E7918F32F7100EE533A /* metric.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = metric.c; path = ../metric.c; sourceTree = "<group>"; };
+		0C677E7A18F32F7100EE533A /* phys.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = phys.c; path = ../phys.c; sourceTree = "<group>"; };
+		0C677E7B18F32F7100EE533A /* utoprim_1dfix1.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = utoprim_1dfix1.c; path = ../utoprim_1dfix1.c; sourceTree = "<group>"; };
+		0C677E7C18F32F7100EE533A /* utoprim_2d.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = utoprim_2d.c; path = ../utoprim_2d.c; sourceTree = "<group>"; };
+		0C677E7D18F32F7100EE533A /* utoprim_1dvsq2fix1.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = utoprim_1dvsq2fix1.c; path = ../utoprim_1dvsq2fix1.c; sourceTree = "<group>"; };
+		0C677E7E18F32F7100EE533A /* u2p_defs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = u2p_defs.h; path = ../u2p_defs.h; sourceTree = "<group>"; };
+		0C677E7F18F32F7100EE533A /* image_interp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = image_interp.c; path = ../image_interp.c; sourceTree = "<group>"; };
+		0C677E8018F32F7100EE533A /* coord.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = coord.c; path = ../coord.c; sourceTree = "<group>"; };
+		0C677E8118F32F7100EE533A /* defs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = defs.h; path = ../defs.h; sourceTree = "<group>"; };
+		0C677E8218F32F7100EE533A /* diag.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = diag.c; path = ../diag.c; sourceTree = "<group>"; };
+		0C677E8318F32F7100EE533A /* dump.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = dump.c; path = ../dump.c; sourceTree = "<group>"; };
+		0C677E8418F32F7100EE533A /* fixup.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = fixup.c; path = ../fixup.c; sourceTree = "<group>"; };
+		0C677E8518F32F7100EE533A /* step_ch.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = step_ch.c; path = ../step_ch.c; sourceTree = "<group>"; tabWidth = 8; };
+		0C677E8618F32F7100EE533A /* bounds.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = bounds.c; path = ../bounds.c; sourceTree = "<group>"; };
+		0C677E8718F32F7100EE533A /* init.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; name = init.c; path = ../init.c; sourceTree = "<group>"; tabWidth = 2; };
+		0C677E8818F32F7100EE533A /* decs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = decs.h; path = ../decs.h; sourceTree = "<group>"; };
+		D6A172DA1C56E4E70022948C /* harm_script.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = harm_script.py; path = ../harm_script.py; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		0C677E6918F32F4100EE533A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0C677E5D18F32EA400EE533A = {
+			isa = PBXGroup;
+			children = (
+				0C677E8618F32F7100EE533A /* bounds.c */,
+				0C677E8018F32F7100EE533A /* coord.c */,
+				0C677E8818F32F7100EE533A /* decs.h */,
+				0C677E8118F32F7100EE533A /* defs.h */,
+				0C677E8218F32F7100EE533A /* diag.c */,
+				0C677E8318F32F7100EE533A /* dump.c */,
+				0C677E8418F32F7100EE533A /* fixup.c */,
+				0C677E7718F32F7100EE533A /* image.c */,
+				0C677E7F18F32F7100EE533A /* image_interp.c */,
+				0C677E8718F32F7100EE533A /* init.c */,
+				0C677E7118F32F7100EE533A /* interp.c */,
+				0C677E7218F32F7100EE533A /* lu.c */,
+				0C677E7818F32F7100EE533A /* main.c */,
+				D6A172DA1C56E4E70022948C /* harm_script.py */,
+				0C677E7918F32F7100EE533A /* metric.c */,
+				0C2E11E41A9B055B00A3678C /* mpi.c */,
+				0C2E11E51A9B055B00A3678C /* mpi.h */,
+				0C677E7A18F32F7100EE533A /* phys.c */,
+				0C677E6D18F32F4100EE533A /* Products */,
+				0C677E7318F32F7100EE533A /* ranc.c */,
+				0C677E7418F32F7100EE533A /* restart.c */,
+				0C677E8518F32F7100EE533A /* step_ch.c */,
+				0C677E7E18F32F7100EE533A /* u2p_defs.h */,
+				0C677E7518F32F7100EE533A /* u2p_util.c */,
+				0C677E7618F32F7100EE533A /* u2p_util.h */,
+				0C677E7B18F32F7100EE533A /* utoprim_1dfix1.c */,
+				0C677E7D18F32F7100EE533A /* utoprim_1dvsq2fix1.c */,
+				0C677E7C18F32F7100EE533A /* utoprim_2d.c */,
+			);
+			sourceTree = "<group>";
+		};
+		0C677E6D18F32F4100EE533A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				0C677E6C18F32F4100EE533A /* libDummy.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		0C677E6A18F32F4100EE533A /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0C677E9918F32F7100EE533A /* defs.h in Headers */,
+				0C677E9618F32F7100EE533A /* u2p_defs.h in Headers */,
+				0C677E8E18F32F7100EE533A /* u2p_util.h in Headers */,
+				0C2E11E71A9B055B00A3678C /* mpi.h in Headers */,
+				0C677EA018F32F7100EE533A /* decs.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXLegacyTarget section */
+		0C677E6218F32EA400EE533A /* HARMPI */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = 0C677E6518F32EA400EE533A /* Build configuration list for PBXLegacyTarget "HARMPI" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = "$(PROJECT_DIR)/..";
+			dependencies = (
+			);
+			name = HARMPI;
+			passBuildSettingsInEnvironment = 1;
+			productName = HARM2D;
+		};
+/* End PBXLegacyTarget section */
+
+/* Begin PBXNativeTarget section */
+		0C677E6B18F32F4100EE533A /* Dummy */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0C677E6E18F32F4200EE533A /* Build configuration list for PBXNativeTarget "Dummy" */;
+			buildPhases = (
+				0C677E6818F32F4100EE533A /* Sources */,
+				0C677E6918F32F4100EE533A /* Frameworks */,
+				0C677E6A18F32F4100EE533A /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Dummy;
+			productName = Dummy;
+			productReference = 0C677E6C18F32F4100EE533A /* libDummy.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		0C677E5E18F32EA400EE533A /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0500;
+				ORGANIZATIONNAME = Home;
+			};
+			buildConfigurationList = 0C677E6118F32EA400EE533A /* Build configuration list for PBXProject "HARMPI" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 0C677E5D18F32EA400EE533A;
+			productRefGroup = 0C677E6D18F32F4100EE533A /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				0C677E6218F32EA400EE533A /* HARMPI */,
+				0C677E6B18F32F4100EE533A /* Dummy */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		0C677E6818F32F4100EE533A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0C677E8A18F32F7100EE533A /* lu.c in Sources */,
+				0C677E9518F32F7100EE533A /* utoprim_1dvsq2fix1.c in Sources */,
+				0C677E8918F32F7100EE533A /* interp.c in Sources */,
+				0C677E8B18F32F7100EE533A /* ranc.c in Sources */,
+				0C677E9718F32F7100EE533A /* image_interp.c in Sources */,
+				0C677E9A18F32F7100EE533A /* diag.c in Sources */,
+				0C677E9318F32F7100EE533A /* utoprim_1dfix1.c in Sources */,
+				0C677E9218F32F7100EE533A /* phys.c in Sources */,
+				0C677E9C18F32F7100EE533A /* fixup.c in Sources */,
+				0C677E8F18F32F7100EE533A /* image.c in Sources */,
+				0C677E9D18F32F7100EE533A /* step_ch.c in Sources */,
+				0C677E8D18F32F7100EE533A /* u2p_util.c in Sources */,
+				0C677E9E18F32F7100EE533A /* bounds.c in Sources */,
+				0C677E9118F32F7100EE533A /* metric.c in Sources */,
+				0C677E8C18F32F7100EE533A /* restart.c in Sources */,
+				0C677E9F18F32F7100EE533A /* init.c in Sources */,
+				0C677E9018F32F7100EE533A /* main.c in Sources */,
+				0C677E9B18F32F7100EE533A /* dump.c in Sources */,
+				0C677E9418F32F7100EE533A /* utoprim_2d.c in Sources */,
+				0C677E9818F32F7100EE533A /* coord.c in Sources */,
+				0C2E11E61A9B055B00A3678C /* mpi.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		0C677E6318F32EA400EE533A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		0C677E6418F32EA400EE533A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		0C677E6618F32EA400EE533A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUGGING_SYMBOLS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		0C677E6718F32EA400EE533A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		0C677E6F18F32F4200EE533A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				EXECUTABLE_PREFIX = lib;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		0C677E7018F32F4200EE533A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				EXECUTABLE_PREFIX = lib;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		0C677E6118F32EA400EE533A /* Build configuration list for PBXProject "HARMPI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0C677E6318F32EA400EE533A /* Debug */,
+				0C677E6418F32EA400EE533A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		0C677E6518F32EA400EE533A /* Build configuration list for PBXLegacyTarget "HARMPI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0C677E6618F32EA400EE533A /* Debug */,
+				0C677E6718F32EA400EE533A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		0C677E6E18F32F4200EE533A /* Build configuration list for PBXNativeTarget "Dummy" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0C677E6F18F32F4200EE533A /* Debug */,
+				0C677E7018F32F4200EE533A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 0C677E5E18F32EA400EE533A /* Project object */;
+}
