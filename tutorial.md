@@ -9,11 +9,11 @@
 		make clean
 		make
 
-If you would like to use ICC instead of GCC, then edit makefile and replace "USEICC = 0" with "USEICC = 1".
+	If you would like to use ICC instead of GCC, then edit makefile and replace "USEICC = 0" with "USEICC = 1".
 
-Before running one of the problems with HARMPI, you choose the problem you want to run in the file decs.h.
+	Before running one of the problems with HARMPI, you choose the problem you want to run in the file decs.h.
 
-You do so by modifying decs.h. There are 6 problems to choose from:
+	You do so by modifying decs.h. There are 6 problems to choose from:
 
 		//which problem
 		#define MONOPOLE_PROBLEM_1D 1
@@ -25,13 +25,13 @@ You do so by modifying decs.h. There are 6 problems to choose from:
 		#define SNDWAVE_TEST 7
 		#define ENTWAVE_TEST 8
 
-The default choice is
+	The default choice is
 
 		#define WHICHPROBLEM TORUS_PROBLEM
 
-This is a magnetized torus accretion problem in 2D. For starters, however, it might be easier to start with a 1D problem without magnetic field, e.g., with `BONDI_PROBLEM_1D`.
+	This is a magnetized torus accretion problem in 2D. For starters, however, it might be easier to start with a 1D problem without magnetic field, e.g., with `BONDI_PROBLEM_1D`.
 
-To run the code, do the following:
+* To run the code, do the following:
 
 		make clean
 		make
@@ -46,7 +46,7 @@ To run the code, do the following:
 
 		./harm
 
-As the code runs, it produces sequential dump files in the 'dumps' subdirectory, i.e., dumps/dump###. It also produces dumps/gdump file that contains the information about the metric and the grid.
+	As the code runs, it produces sequential dump files in the 'dumps' subdirectory, i.e., dumps/dump###. It also produces dumps/gdump file that contains the information about the metric and the grid.
 
 ## How to read in the output into Python
 
@@ -60,7 +60,7 @@ You can use any visualization program you are used to (Python, Gnuplot, IDL, Mat
 
 		ipython --pylab
 
-You should do this from the location of the harm executable.
+	You should do this from the location of the harm executable.
 
 * Initialize the scripts:
 
@@ -74,7 +74,7 @@ You should do this from the location of the harm executable.
 
 		rd("dump000")
 
-where you can replace "000" with any other number of a dump file (provided it was already written out).
+	where you can replace "000" with any other number of a dump file (provided it was already written out).
 
 * Once you read in a dump file, you can print its current time via
 
@@ -82,7 +82,7 @@ where you can replace "000" with any other number of a dump file (provided it wa
 
 ## Understanding the grid
 
-HARMPI (like HARM2D) is capable of using non-uniform grids. The examples below will automatically take care of converting from the grid coordinates, which are x1, x2, x3, to the physical coordinates, which are r, theta, phi.
+	HARMPI (like HARM2D) is capable of using non-uniform grids. The examples below will automatically take care of converting from the grid coordinates, which are x1, x2, x3, to the physical coordinates, which are r, theta, phi.
 
 ## How to visualize the output in Python
 * Python Visualization Examples
