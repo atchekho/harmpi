@@ -1,4 +1,4 @@
-# Exercises for HARMPI by Sasha Tchekhovskoy
+# HARMPI exercises by Sasha Tchekhovskoy
 
 ## Hydro problems
 
