@@ -86,6 +86,7 @@ HARMPI (like HARM2D) is capable of using non-uniform grids. The examples below w
 
 ## How to visualize the output in Python
 * Python Visualization Examples
+
 	For a 1D test: scroll down to the bottom of harm_script.py and replace
 
 		if False:
@@ -116,7 +117,7 @@ HARMPI (like HARM2D) is capable of using non-uniform grids. The examples below w
 
 		plco(np.log10(rho),xy=1,xmax=100,ymax=50,cb=True)
 
-Here `xmax = 100` and `ymax = 50` set the plotting range. You can omit these arguments, and a default range will be used.
+	Here `xmax = 100` and `ymax = 50` set the plotting range. You can omit these arguments, and a default range will be used.
 
 * Compute magnetic ﬂux function:
 
