@@ -12,6 +12,8 @@ To run problems with HARMPI and to analyze the results, please follow this [tuto
 
 	* Plot the profiles of density at a few times in a simulation. Determine the position of the sonic surface. 
 
+## Magnetized problems
+
 ### 1D magnetized problems
 
 * Monopole problem
