@@ -31,20 +31,24 @@
 
 	This is a magnetized torus accretion problem in 2D. For starters, however, it might be easier to start with a 1D problem without magnetic field, e.g., with `BONDI_PROBLEM_1D`.
 
-* To run the code, do the following:
-
-		make clean
-		make
-		./harm
-
 * Compile:
 
 		make clean
 		make
 
-* Run:
+* Choosing desired resolution
 
-		./harm
+	You can choose the desired resolution per MPI *tile* by changing the values of `N1`, `N2`, and `N3` for the chosen problem in [decs.h](decs.h).
+
+* To run the code
+
+	You choose the number of tiles along each of the 3 directions at run time. E.g., if `N1 = N2 = N3 = 32`, and you choose to run with two cores in each of the 3 dimensions, you get a resolution of 64x64x64 cells by running
+
+		mpirun -n 8 ./harm 2 2 2
+
+* To run the code in serial (on a single core), do the following:
+
+		./harm 1 1 1
 
 	As the code runs, it produces sequential dump files in the 'dumps' subdirectory, i.e., dumps/dump###. It also produces dumps/gdump file that contains the information about the metric and the grid.
 
