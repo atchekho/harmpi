@@ -86,23 +86,22 @@ HARMPI (like HARM2D) is capable of using non-uniform grids. The examples below w
 
 ## How to visualize the output in Python
 * Python Visualization Examples
-
-For a 1D test: scroll down to the bottom of harm_script.py and replace
+	For a 1D test: scroll down to the bottom of harm_script.py and replace
 
 		if False:
 			#1D plot example
 
-with
+	with
 
 		if True:
 			#1D plot example
 
-For a 2D test: scroll down to the bottom of harm_script.py and replace
+	For a 2D test: scroll down to the bottom of harm_script.py and replace
 
 		if False:
 			#2D plot example
 
-with
+	with
 
 		if True:
 			#2D plot example
