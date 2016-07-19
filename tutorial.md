@@ -4,7 +4,7 @@
 
 * To install the code, you do:
 
-	    git clone git@github.com:atchekho/harmpi.git
+		git clone git@github.com:atchekho/harmpi.git
 		cd harmpi
 		make clean
 		make
@@ -27,7 +27,7 @@ You do so by modifying decs.h. There are 6 problems to choose from:
 
 The default choice is
 
-        #define WHICHPROBLEM TORUS_PROBLEM
+		#define WHICHPROBLEM TORUS_PROBLEM
 
 This is a magnetized torus accretion problem in 2D. For starters, however, it might be easier to start with a 1D problem without magnetic field, e.g., with `BONDI_PROBLEM_1D`.
 
@@ -85,27 +85,27 @@ where you can replace "000" with any other number of a dump file (provided it wa
 HARMPI (like HARM2D) is capable of using non-uniform grids. The examples below will automatically take care of converting from the grid coordinates, which are x1, x2, x3, to the physical coordinates, which are r, theta, phi.
 
 ## How to visualize the output in Python
-* Python Visualization Examples
+	* Python Visualization Examples
 
 	For a 1D test: scroll down to the bottom of harm_script.py and replace
 
 		if False:
-            #1D plot example
+			#1D plot example
 
 	with
 
-	    if True:
-            #1D plot example
+		if True:
+			#1D plot example
 
 	For a 2D test: scroll down to the bottom of harm_script.py and replace
 
 		if False:
-	        #2D plot example
+			#2D plot example
 
 	with
 
-        if True:
-            #2D plot example
+		if True:
+			#2D plot example
 
 * Plot the 1D radial dependence of density along the equatorial plane
 
@@ -190,3 +190,4 @@ Here `xmax = 100` and `ymax = 50` set the plotting range. You can omit these arg
 
 		plt.figure()
 
+	
