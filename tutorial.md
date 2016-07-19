@@ -13,7 +13,7 @@
 
 	Before running one of the problems with HARMPI, you choose the problem you want to run in the file decs.h.
 
-	You do so by modifying decs.h. There are 6 problems to choose from:
+	You do so by modifying decs.h. There are 8 problems to choose from:
 
 		//which problem
 		#define MONOPOLE_PROBLEM_1D 1
