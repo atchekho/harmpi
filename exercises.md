@@ -26,16 +26,16 @@ To run problems with HARM2D and to analyze the results, please follow this [tuto
 
 	Set WHICHPROBLEM to `BZ_MONOPOLE_2D` in [decs.h](decs.h). Note: a good total resolution is 256x256x1
 
-    ** Plot the location of the surface in $R{--}z$ plane at which the radial contravariant component of velocity, $u^r$, vanishes. Hint: plot the contour of `uu[1] == 0`.
-    ** Plot the dependence of the ratio OmegaF/OmegaH at the horizon as a function of the angle, \theta.
-    ** Compare the prediction of power by the standard Blandford & Znajek (1977) power formula to the simulation results.
+    * Plot the location of the surface in $R{--}z$ plane at which the radial contravariant component of velocity, $u^r$, vanishes. Hint: plot the contour of `uu[1] == 0`.
+    * Plot the dependence of the ratio OmegaF/OmegaH at the horizon as a function of the angle, \theta.
+    * Compare the prediction of power by the standard Blandford & Znajek (1977) power formula to the simulation results.
 
 * 2D monopole problem
 
 	Set `WHICHPROBLEM` to `MONOPOLE_PROBLEM_2D` in [decs.h](decs.h).  Note: a good total resolution is 1152x256x1. It will take some time for the problem to complete depending on the number of cores used.
 
-    ** Compare $\Gamma(r)$ to that in the above 1D monopole problem. In which case is the Lorentz factor higher? Why?
-    ** Verify that the value of the Lorentz factor at the fast surface is $\Gamma =$ `(bsq/rho)**0.5`. What is the value of $\Gamma$ at the fast surface?
+    * Compare $\Gamma(r)$ to that in the above 1D monopole problem. In which case is the Lorentz factor higher? Why?
+    * Verify that the value of the Lorentz factor at the fast surface is $\Gamma =$ `(bsq/rho)**0.5`. What is the value of $\Gamma$ at the fast surface?
 
 * Torus problem
 
