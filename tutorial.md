@@ -51,7 +51,7 @@ As the code runs, it produces sequential dump files in the 'dumps' subdirectory,
 ## How to read in the output into Python
 
 You can use any visualization program you are used to (Python, Gnuplot, IDL, Matlab, etc)
-* The scripts for reading in the data in Python are located in [https://github.com/atchekho/harmpi](harm_script.py)
+* The scripts for reading in the data in Python are located in [harm_script.py](harm_script.py)
 * For a great Python tutorial, check out <http://www.learnpython.org/>
 
 ## To use these Python scripts, do:
@@ -80,16 +80,15 @@ where you can replace "000" with any other number of a dump file (provided it wa
 
 		print t
 
-Understanding the grid
+## Understanding the grid
 
 HARMPI (like HARM2D) is capable of using non-uniform grids. The examples below will automatically take care of converting from the grid coordinates, which are x1, x2, x3, to the physical coordinates, which are r, theta, phi.
 
 ## How to visualize the output in Python
 * Python Visualization Examples
-
 For a 1D test: scroll down to the bottom of harm_script.py and replace
 
-        if False:
+		if False:
             #1D plot example
 
 with
