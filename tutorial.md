@@ -82,7 +82,7 @@ You can use any visualization program you are used to (Python, Gnuplot, IDL, Mat
 
 ## Understanding the grid
 
-	HARMPI (like HARM2D) is capable of using non-uniform grids. The examples below will automatically take care of converting from the grid coordinates, which are x1, x2, x3, to the physical coordinates, which are r, theta, phi.
+HARMPI (like HARM2D) is capable of using non-uniform grids. The examples below will automatically take care of converting from the grid coordinates, which are x1, x2, x3, to the physical coordinates, which are r, theta, phi.
 
 ## How to visualize the output in Python
 * Python Visualization Examples
