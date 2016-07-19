@@ -1,6 +1,9 @@
 This code has been updated by Sasha Tchekhovskoy to 3D and MPI. Feel
 free to check out the [user guide](tutorial.md) and [exercises/homework](exercises.md).
 
+    Copyright 2016 Alexander Tchekhovskoy
+
+
     Copyright 2006 Charles F. Gammie, Jonathan C. McKinney, Scott C. Noble, 
                    Gabor Toth, and Luca Del Zanna
 
