@@ -1,3 +1,4 @@
+//Modified by Alexander Tchekhovskoy: MPI+3D
 /***********************************************************************************
     Copyright 2006 Charles F. Gammie, Jonathan C. McKinney, Scott C. Noble, 
                    Gabor Toth, and Luca Del Zanna
@@ -75,9 +76,9 @@ utoprim_1dfix1.c:
 
 /* these variables need to be shared between the functions
    Utoprim_1D, residual, and utsq */
-FTYPE Bsq,QdotBsq,Qtsq,Qdotn,D, K_atm ;
-FTYPE W_for_gnr2, rho_for_gnr2, W_for_gnr2_old, rho_for_gnr2_old;
-
+static FTYPE Bsq,QdotBsq,Qtsq,Qdotn,D, K_atm ;
+static FTYPE W_for_gnr2, rho_for_gnr2, W_for_gnr2_old, rho_for_gnr2_old;
+#pragma omp threadprivate(Bsq,QdotBsq,Qtsq,Qdotn,D, K_atm, W_for_gnr2, rho_for_gnr2, W_for_gnr2_old, rho_for_gnr2_old)
 
 // Declarations: 
 static FTYPE vsq_calc(FTYPE W);
@@ -143,14 +144,14 @@ int Utoprim_1dfix1(FTYPE U[NPR], FTYPE gcov[NDIM][NDIM], FTYPE gcon[NDIM][NDIM],
   FTYPE alpha;
 
 
-  if( U[0] <= 0. ) { 
+  /* First update the primitive B-fields */
+  for(i = BCON1; i <= BCON3; i++) prim[i] = U[i] / gdet ;
+
+  if( U[0] <= 0. ) {
     return(-100);
   }
 
   K_atm = K ; 
-
-  /* First update the primitive B-fields */
-  for(i = BCON1; i <= BCON3; i++) prim[i] = U[i] / gdet ;
 
   /* Set the geometry variables: */
   alpha = 1.0/sqrt(-gcon[0][0]);
@@ -158,6 +159,9 @@ int Utoprim_1dfix1(FTYPE U[NPR], FTYPE gcov[NDIM][NDIM], FTYPE gcon[NDIM][NDIM],
   /* Transform the CONSERVED variables into the new system */
   U_tmp[RHO] = alpha * U[RHO] / gdet;
   U_tmp[UU]  = alpha * (U[UU] - U[RHO])  / gdet ;
+
+
+    
   for( i = UTCON1; i <= UTCON3; i++ ) {
     U_tmp[i] = alpha * U[i] / gdet ;
   }
@@ -182,6 +186,14 @@ int Utoprim_1dfix1(FTYPE U[NPR], FTYPE gcov[NDIM][NDIM], FTYPE gcon[NDIM][NDIM],
     }
   }
 
+#if( DOKTOT )
+  prim[KTOT] = U[KTOT]/U[RHO];
+#endif
+
+  
+
+  
+  
   return( ret ) ;
 
 }
@@ -234,7 +246,9 @@ static int Utoprim_new_body(FTYPE U[NPR], FTYPE gcov[NDIM][NDIM],
   FTYPE x_1d[1];
   FTYPE QdotB,Bcon[NDIM],Bcov[NDIM],Qcov[NDIM],Qcon[NDIM],ncov[NDIM],ncon[NDIM],Qsq,Qtcon[NDIM];
   FTYPE rho0,u,p,w,gammasq,gamma,gtmp,W_last,W,utsq,vsq,tmpdiff ;
+    FTYPE alpha, ucovt, utsqp1, aco, bco, cco, pevar, agame, the, utt;
   int i,j, retval, i_increase ;
+    double dummy;
 
   // Assume ok initially:
   retval = 0;
@@ -376,13 +390,13 @@ static int Utoprim_new_body(FTYPE U[NPR], FTYPE gcov[NDIM][NDIM],
     return(retval) ;
   }
 
-  prim[RHO] = rho0 ;
-  prim[UU] = u ;
-
-
+   prim[RHO] = rho0 ;
+   prim[UU] = u ;
+    
   for(i=1;i<4;i++)  Qtcon[i] = Qcon[i] + ncon[i] * Qdotn;
   for(i=1;i<4;i++) prim[UTCON1+i-1] = gamma/(W+Bsq) * ( Qtcon[i] + QdotB*Bcon[i]/W ) ;
 	
+    
   /* set field components */
   for(i = BCON1; i <= BCON3; i++) prim[i] = U[i] ;
 

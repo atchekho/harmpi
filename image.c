@@ -1,3 +1,4 @@
+//Modified by Alexander Tchekhovskoy: MPI+3D
 /***********************************************************************************
     Copyright 2006 Charles F. Gammie, Jonathan C. McKinney, Scott C. Noble, 
                    Gabor Toth, and Luca Del Zanna
@@ -99,12 +100,21 @@ void image_ppm(double *f, char *fname);
 void image_all( int image_count ) 
 { 
 
-  int i,j,k, i_img;
+  int i,j,k,m, i_img;
   static int first_call = 1;
   static char ifnam[3*NIMG+1][100];
   double gamma;
   struct of_geom geom ;
   static const double fimage_logmin = 1.e-15;
+  char suff[100];
+#ifdef MPI
+  //file suffixes that will be different by MPI rank
+  sprintf(suff, "_%04d", mpi_rank);
+#else
+  //no suffix absent MPI
+  strcpy(suff, "");
+#endif
+  
 
   
   if( (IGAM+1) != NIMG ) {
@@ -124,21 +134,21 @@ void image_all( int image_count )
     Set the names of the image files to be generated now : 
   ************************************************************************/
   i_img = 0 ;
-  sprintf(ifnam[i_img++], "images/im_rho_%04d.%s",image_count, IMGEXT) ;
-  sprintf(ifnam[i_img++], "images/im_u_%04d.%s"  ,image_count, IMGEXT) ;
-  sprintf(ifnam[i_img++], "images/im_bsq_%04d.%s",image_count, IMGEXT) ;
-  sprintf(ifnam[i_img++], "images/im_gam_%04d.%s",image_count, IMGEXT) ;
+  sprintf(ifnam[i_img++], "images/im_rho_%04d%s.%s",image_count, suff, IMGEXT) ;
+  sprintf(ifnam[i_img++], "images/im_u_%04d%s.%s"  ,image_count, suff, IMGEXT) ;
+  sprintf(ifnam[i_img++], "images/im_bsq_%04d%s.%s",image_count, suff, IMGEXT) ;
+  sprintf(ifnam[i_img++], "images/im_gam_%04d%s.%s",image_count, suff, IMGEXT) ;
 
-  sprintf(ifnam[i_img++], "images/im_lrho_%04d.%s",image_count, IMGEXT) ;
-  sprintf(ifnam[i_img++], "images/im_lu_%04d.%s"  ,image_count, IMGEXT) ;
-  sprintf(ifnam[i_img++], "images/im_lbsq_%04d.%s",image_count, IMGEXT) ;
-  sprintf(ifnam[i_img++], "images/im_lgam_%04d.%s",image_count, IMGEXT) ;
+  sprintf(ifnam[i_img++], "images/im_lrho_%04d%s.%s",image_count, suff, IMGEXT) ;
+  sprintf(ifnam[i_img++], "images/im_lu_%04d%s.%s"  ,image_count, suff, IMGEXT) ;
+  sprintf(ifnam[i_img++], "images/im_lbsq_%04d%s.%s",image_count, suff, IMGEXT) ;
+  sprintf(ifnam[i_img++], "images/im_lgam_%04d%s.%s",image_count, suff, IMGEXT) ;
 
-  sprintf(ifnam[i_img++], "images/failu2p1_%04d.%s",image_count, IMGEXT) ;
-  sprintf(ifnam[i_img++], "images/failu2p2_%04d.%s",image_count, IMGEXT) ;
-  sprintf(ifnam[i_img++], "images/failu2p3_%04d.%s",image_count, IMGEXT) ;
-  sprintf(ifnam[i_img++], "images/failgamc_%04d.%s",image_count, IMGEXT) ;
-  sprintf(ifnam[i_img++], "images/failfint_%04d.%s",image_count, IMGEXT) ;
+  sprintf(ifnam[i_img++], "images/failu2p1_%04d%s.%s",image_count, suff, IMGEXT) ;
+  sprintf(ifnam[i_img++], "images/failu2p2_%04d%s.%s",image_count, suff, IMGEXT) ;
+  sprintf(ifnam[i_img++], "images/failu2p3_%04d%s.%s",image_count, suff, IMGEXT) ;
+  sprintf(ifnam[i_img++], "images/failgamc_%04d%s.%s",image_count, suff, IMGEXT) ;
+  sprintf(ifnam[i_img++], "images/failfint_%04d%s.%s",image_count, suff, IMGEXT) ;
 
 
   /************************************************************************
@@ -146,16 +156,16 @@ void image_all( int image_count )
         -- the log versions overwrite the non-log versions;
         -- calculate only the non-log version here
   ************************************************************************/
-  k = 0 ;
+  m = 0 ; //m is the linear index of pixel in the image
   IMAGELOOP { 
-    get_geometry(i,j,CENT,&geom) ;
-    if( gamma_calc(p[i][j],&geom,&gamma) ) { gamma = 1.; }
+    get_geometry(i,j,k,CENT,&geom) ;
+    if( gamma_calc(p[i][j][k],&geom,&gamma) ) { gamma = 1.; }
     
-    fimage[IRHO][k] = p[i][j][RHO] ; 
-    fimage[IUU ][k] = p[i][j][UU ] ;
-    fimage[IBSQ][k] = bsq_calc( p[i][j], &geom ) ; 
-    fimage[IGAM][k] = gamma ;
-    k++;
+    fimage[IRHO][m] = p[i][j][k][RHO] ;
+    fimage[IUU ][m] = p[i][j][k][UU ] ;
+    fimage[IBSQ][m] = bsq_calc( p[i][j][k], &geom ) ;
+    fimage[IGAM][m] = gamma ;
+    m++;
   }
 
 
@@ -169,7 +179,7 @@ void image_all( int image_count )
   /************************************************************************
     Make log version of the image functions 
   ************************************************************************/
-  for( i = 0 ; i < NIMG*N1*N2; i++ ) { 
+  for( i = 0 ; i < NIMG*N1*N2*N3; i++ ) {
     fimage[0][i] = log( fabs(fimage[0][i]) + fimage_logmin );
   }
   for( i_img = 0 ; i_img < NIMG; i_img++ ) { 
@@ -180,14 +190,14 @@ void image_all( int image_count )
     Output log versions:
   ************************************************************************/
   for( j = 0 ; j < 5; j++ ) { 
-    for( i = 0 ; i < N1*N2; i++ ) { 
+    for( i = 0 ; i < N1*N2*N3; i++ ) {
       fimage[0][i] = (double) failimage[j][i];
     }
     image( fimage[0], ifnam[j+2*NIMG] );
   }
 
   /* Reset array after every image dump: */
-  for( i = 0 ; i < 5*N1*N2; i++ ) { 
+  for( i = 0 ; i < 5*N1*N2*N3; i++ ) {
     failimage[0][i] = 0;
   }
 
@@ -341,7 +351,7 @@ void get_color_map(void)
   enum PPM_type { ppm_plain, ppm_raw };
   enum PPM_type ppm_type, ppm_body;
 
-  fprintf(stdout,"Starting get_color_map().... \n"); fflush(stdout);
+  if(MASTER==mpi_rank) fprintf(stdout,"Starting get_color_map().... \n"); fflush(stdout);
   
   if( (fp = fopen("map.ppm","r")) == NULL ) {
     fflush(stderr);
@@ -460,7 +470,7 @@ void get_color_map(void)
 
   fclose(fp);
 
-
+#if(0)
   /********************************************************************************
     test get_color_map():  Make sure that testmap.ppm looks identical to your map.ppm file. 
   ********************************************************************************/
@@ -474,9 +484,9 @@ void get_color_map(void)
     fputc(color_map[BLUE ][i],fp);
   }
   fclose(fp);
+#endif
 
-
-  fprintf(stdout,"Ending get_color_map().... \n"); fflush(stdout);
+  if(MASTER==mpi_rank) fprintf(stdout,"Ending get_color_map().... \n"); fflush(stdout);
 
   return;
 }

@@ -1,3 +1,4 @@
+//Modified by Alexander Tchekhovskoy: MPI+3D
 /***********************************************************************************
     Copyright 2006 Charles F. Gammie, Jonathan C. McKinney, Scott C. Noble, 
                    Gabor Toth, and Luca Del Zanna
@@ -80,7 +81,7 @@ double ranc(int iseed)
     if (called || iseed != 0)  { 
 	called = 0 ;
 	if (iseed==0)
-	    iseed = time(0) ;
+        iseed = 24; //time(0) ;
 	srand(iseed) ;
 	n = 0 ;
 	for( i = 0 ; i < NRANC ; i++ ) {

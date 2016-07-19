@@ -44,24 +44,43 @@
 #### set USEICC to 0 if you want gcc compiler options, else set to 1 to use icc
 ########  gcc generally used for debugging with -g option so we can use gdb 
 USEICC = 0
-
+USEOMP = 0
+USEMPI = 1
 
 ifeq ($(USEICC),1)
-CC       = icc
-CCFLAGS  = -O3 -axW -tpp7
+CC       = mpicc
+CCFLAGS2  = -O2 -xhost -restrict #-no-prec-div -axCORE-AVX2 -xSSE4.2 #-O2 -xAVX 
 #CCFLAGS  = -O2
+ifeq ($(USEOMP),1)
+CCFLAGS  = $(CCFLAGS2) -openmp
+else
+CCFLAGS = $(CCFLAGS2)
+endif
+
 endif
 
 ifeq ($(USEICC),0)
 CC       = gcc
-CCFLAGS  = -g -O3
+CCFLAGS1  = -g -O2 -ggdb -Wall -Wextra -Wno-unused-variable -Wno-unused-parameter -Wno-unused-but-set-variable -Wno-unknown-pragmas  #-fsanitize=address -fno-omit-frame-pointer
+ifeq ($(USEOMP),1)
+CCFLAGS  = $(CCFLAGS1) -fopenmp
+else
+CCFLAGS = $(CCFLAGS1)
+endif
 endif
 
 
+ifeq ($(USEMPI),1)
+EXTRALIBS= #-lm #-lmpi
+EXTRACCFLAGS=-DMPI
+CC=/usr/local/bin/mpicc
+else
 EXTRALIBS = -lm
+EXTRACCFLAGS = 
+endif
 
-CC_COMPILE  = $(CC) $(CCFLAGS) -c 
-CC_LOAD     = $(CC) $(CCFLAGS) 
+CC_COMPILE  = $(CC) $(CCFLAGS) $(EXTRACCFLAGS) -c 
+CC_LOAD     = $(CC) $(CCFLAGS) $(EXTRACCFLAGS)
 
 .c.o:
 	$(CC_COMPILE) $*.c
@@ -72,17 +91,17 @@ all: $(EXE) image_interp
 
 SRCS = \
 bounds.c coord.c diag.c dump.c fixup.c \
-image.c init.c interp.c main.c metric.c lu.c \
+init.c interp.c main.c metric.c lu.c \
 phys.c ranc.c restart.c step_ch.c \
-utoprim_1dfix1.c utoprim_1dvsq2fix1.c utoprim_2d.c u2p_util.c
+utoprim_1dfix1.c utoprim_1dvsq2fix1.c utoprim_2d.c u2p_util.c mpi.c
 
 OBJS = \
 bounds.o coord.o diag.o dump.o fixup.o \
-image.o init.o interp.o main.o metric.o lu.o \
+init.o interp.o main.o metric.o lu.o \
 phys.o ranc.o restart.o step_ch.o \
-utoprim_1dfix1.o utoprim_1dvsq2fix1.o utoprim_2d.o u2p_util.o
+utoprim_1dfix1.o utoprim_1dvsq2fix1.o utoprim_2d.o u2p_util.o mpi.o
 
-INCS = decs.h  defs.h  u2p_defs.h  u2p_util.h
+INCS = decs.h  defs.h  u2p_defs.h  u2p_util.h  mpi.h
 
 $(OBJS) : $(INCS) makefile
 

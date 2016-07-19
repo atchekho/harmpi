@@ -1,3 +1,4 @@
+//Modified by Alexander Tchekhovskoy: MPI+3D
 /***********************************************************************************
     Copyright 2006 Charles F. Gammie, Jonathan C. McKinney, Scott C. Noble, 
                    Gabor Toth, and Luca Del Zanna
@@ -52,15 +53,48 @@
  */
 
 #include "decs.h"
+#include <float.h>
 
 
-void coord_transform(double *pr,int i, int j) ;
+void coord_transform(double *pr,int i, int j,int k) ;
+double compute_Amax( double (*A)[N2+D2][N3+D3] );
+double compute_B_from_A( double (*A)[N2+D2][N3+D3], double (*p)[N2M][N3M][NPR] );
+double normalize_B_by_maxima_ratio(double beta_target, double (*p)[N2M][N3M][NPR], double *norm_value);
+double normalize_B_by_beta(double beta_target, double (*p)[N2M][N3M][NPR], double rmax, double *norm_value);
 
+/////////////////////
+//magnetic field geometry and normalization
+#define NORMALFIELD (0)
+
+#define WHICHFIELD NORMALFIELD
+
+#define NORMALIZE_FIELD_BY_MAX_RATIO (1)
+#define NORMALIZE_FIELD_BY_BETAMIN (2)
+#define WHICH_FIELD_NORMALIZATION NORMALIZE_FIELD_BY_BETAMIN
+//end magnetic field
+//////////////////////
+
+//////////////////////
+//torus density normalization
+#define THINTORUS_NORMALIZE_DENSITY (1)
+#define DOAUTOCOMPUTEENK0 (1)
+
+#define NORMALIZE_BY_TORUS_MASS (1)
+#define NORMALIZE_BY_DENSITY_MAX (2)
+
+#define DENSITY_NORMALIZATION NORMALIZE_BY_DENSITY_MAX
+//torus density normalization
+//////////////////////
+
+double rmax = 0.;
+double rhomax = 1.;
 
 void init()
 {
   void init_bondi(void);
   void init_torus(void);
+  void init_sndwave(void);
+  void init_entwave(void);
   void init_monopole(double Rout_val);
 
   switch( WHICHPROBLEM ) {
@@ -74,6 +108,12 @@ void init()
   case TORUS_PROBLEM:
     init_torus();
     break;
+  case SNDWAVE_TEST :
+    init_sndwave() ;
+    break ;
+  case ENTWAVE_TEST :
+    init_entwave() ;
+    break ;
   case BONDI_PROBLEM_1D:
   case BONDI_PROBLEM_2D:
     init_bondi();
@@ -84,267 +124,640 @@ void init()
 
 void init_torus()
 {
-	int i,j ;
-	double r,th,sth,cth ;
-	double ur,uh,up,u,rho ;
-	double X[NDIM] ;
-	struct of_geom geom ;
+  int i,j,k ;
+  double r,th,phi,sth,cth ;
+  double ur,uh,up,u,rho ;
+  double X[NDIM] ;
+  struct of_geom geom ;
 
-	/* for disk interior */
-	double l,rin,lnh,expm2chi,up1 ;
-	double DD,AA,SS,thin,sthin,cthin,DDin,AAin,SSin ;
-	double kappa,hm1 ;
+  /* for disk interior */
+  double l,rin,lnh,expm2chi,up1 ;
+  double DD,AA,SS,thin,sthin,cthin,DDin,AAin,SSin ;
+  double kappa,hm1 ;
 
-	/* for magnetic field */
-	double A[N1+1][N2+1] ;
-	double rho_av,rhomax,umax,beta,bsq_ij,bsq_max,norm,q,beta_act ;
-	double rmax, lfish_calc(double rmax) ;
+  /* for magnetic field */
+  double A[N1+D1][N2+D2][N3+D3] ;
+  double rho_av,umax,beta,bsq_ij,bsq_max,norm,q,beta_act ;
+  double lfish_calc(double rmax) ;
+  
+  int iglob, jglob, kglob;
+  double rancval;
+  
+  double amax, aphipow;
+  
+  double Amin, Amax, cutoff_frac = 0.01;
+  
+  /* some physics parameters */
+  gam = 5./3. ;
 
-	/* some physics parameters */
-	gam = 4./3. ;
+  /* disk parameters (use fishbone.m to select new solutions) */
+  a = 0.5 ;
+  rin = 6. ;
+  rmax = 13. ;
+  l = lfish_calc(rmax) ;
 
-	/* disk parameters (use fishbone.m to select new solutions) */
-        a = 0.9375 ;
-        rin = 6. ;
-	rmax = 12. ;
-        l = lfish_calc(rmax) ;
+  kappa =1.e-3;
+  beta = 100. ;
 
-	kappa = 1.e-3 ;
-	beta = 1.e2 ;
-
-        /* some numerical parameters */
-        lim = MC ;
-        failed = 0 ;	/* start slow */
-        cour = 0.9 ;
-        dt = 1.e-5 ;
-	R0 = 0.0 ;
-        Rin = 0.98*(1. + sqrt(1. - a*a)) ;
-        Rout = 40. ;
-
-        t = 0. ;
-        hslope = 0.3 ;
-
-	if(N2!=1) {
-	  //2D problem, use full pi-wedge in theta
-	  fractheta = 1.;
-	}
-	else{
-	  //1D problem (since only 1 cell in theta-direction), use a restricted theta-wedge
-	  fractheta = 1.e-2;
-	}
-
-        set_arrays() ;
-        set_grid() ;
-
-	coord(-2,0,CENT,X) ;
-	bl_coord(X,&r,&th) ;
-	fprintf(stderr,"rmin: %g\n",r) ;
-	fprintf(stderr,"rmin/rm: %g\n",r/(1. + sqrt(1. - a*a))) ;
-
-        /* output choices */
-	tf = 2000.0 ;
-
-	DTd = 50. ;	/* dumping frequency, in units of M */
-	DTl = 2. ;	/* logfile frequency, in units of M */
-	DTi = 2. ; 	/* image file frequ., in units of M */
-	DTr = 100 ; 	/* restart file frequ., in timesteps */
-
-	/* start diagnostic counters */
-	dump_cnt = 0 ;
-	image_cnt = 0 ;
-	rdump_cnt = 0 ;
-	defcon = 1. ;
-
-	rhomax = 0. ;
-	umax = 0. ;
-	ZSLOOP(0,N1-1,0,N2-1) {
-		coord(i,j,CENT,X) ;
-		bl_coord(X,&r,&th) ;
-
-		sth = sin(th) ;
-		cth = cos(th) ;
-
-		/* calculate lnh */
-		DD = r*r - 2.*r + a*a ;
-		AA = (r*r + a*a)*(r*r + a*a) - DD*a*a*sth*sth ;
-		SS = r*r + a*a*cth*cth ;
-
-		thin = M_PI/2. ;
-		sthin = sin(thin) ;
-		cthin = cos(thin) ;
-		DDin = rin*rin - 2.*rin + a*a ;
-		AAin = (rin*rin + a*a)*(rin*rin + a*a) 
-			- DDin*a*a*sthin*sthin ;
-		SSin = rin*rin + a*a*cthin*cthin ;
-
-		if(r >= rin) {
-			lnh = 0.5*log((1. + sqrt(1. + 4.*(l*l*SS*SS)*DD/
-				(AA*sth*AA*sth)))/(SS*DD/AA)) 
-				- 0.5*sqrt(1. + 4.*(l*l*SS*SS)*DD/(AA*AA*sth*sth))
-				- 2.*a*r*l/AA 
-				- (0.5*log((1. + sqrt(1. + 4.*(l*l*SSin*SSin)*DDin/
-				(AAin*AAin*sthin*sthin)))/(SSin*DDin/AAin)) 
-				- 0.5*sqrt(1. + 4.*(l*l*SSin*SSin)*DDin/
-					(AAin*AAin*sthin*sthin)) 
-				- 2.*a*rin*l/AAin ) ;
-		}
-		else
-			lnh = 1. ;
+  /* some numerical parameters */
+  lim = MC ;
+  failed = 0 ;	/* start slow */
+  cour = .8 ;
+  dt = 1.e-5 ;
+  R0 = 0.0 ;
+  Rin = 0.87*(1. + sqrt(1. - a*a)) ;  //.98
+  Rout = 1e5;
+  rbr = 400.;
+  npow2=4.0; //power exponent
+  cpow2=1.0; //exponent prefactor (the larger it is, the more hyperexponentiation is)
 
 
-		/* regions outside torus */
-		if(lnh < 0. || r < rin) {
-			rho = 1.e-7*RHOMIN ;
-                        u = 1.e-7*UUMIN ;
+  t = 0. ;
+  hslope = 0.3 ;
 
-			/* these values are demonstrably physical
-			   for all values of a and r */
-			/*
-                        ur = -1./(r*r) ;
-                        uh = 0. ;
-			up = 0. ;
-			*/
+  if(N2!=1) {
+    //2D problem, use full pi-wedge in theta
+    fractheta = 1.;
+  }
+  else{
+    //1D problem (since only 1 cell in theta-direction), use a restricted theta-wedge
+    fractheta = 1.e-2;
+  }
+  
+  fracphi = 0.5;
 
-			ur = 0. ;
-			uh = 0. ;
-			up = 0. ;
+  set_arrays() ;
+  set_grid() ;
 
-			/*
-			get_geometry(i,j,CENT,&geom) ;
-                        ur = geom.gcon[0][1]/geom.gcon[0][0] ;
-                        uh = geom.gcon[0][2]/geom.gcon[0][0] ;
-                        up = geom.gcon[0][3]/geom.gcon[0][0] ;
-			*/
+  get_phys_coord(5,0,0,&r,&th,&phi) ;
+  if(MASTER==mpi_rank) {
+    fprintf(stderr,"r[5]: %g\n",r) ;
+    fprintf(stderr,"r[5]/rhor: %g",r/(1. + sqrt(1. - a*a))) ;
+    if( r > 1. + sqrt(1. - a*a) ) {
+      fprintf(stderr, ": INSUFFICIENT RESOLUTION, ADD MORE CELLS INSIDE THE HORIZON\n" );
+    }
+    else {
+      fprintf(stderr, "\n");
+    }
+  }
 
-			p[i][j][RHO] = rho ;
-			p[i][j][UU] = u ;
-			p[i][j][U1] = ur ;
-			p[i][j][U2] = uh ;
-			p[i][j][U3] = up ;
-		}
-		/* region inside magnetized torus; u^i is calculated in
-		 * Boyer-Lindquist coordinates, as per Fishbone & Moncrief,
-		 * so it needs to be transformed at the end */
-		else { 
-			hm1 = exp(lnh) - 1. ;
-			rho = pow(hm1*(gam - 1.)/(kappa*gam),
-						1./(gam - 1.)) ; 
-			u = kappa*pow(rho,gam)/(gam - 1.) ;
-			ur = 0. ;
-			uh = 0. ;
+  /* output choices */
+  tf = 10000.0 ;
 
-			/* calculate u^phi */
-			expm2chi = SS*SS*DD/(AA*AA*sth*sth) ;
-			up1 = sqrt((-1. + sqrt(1. + 4.*l*l*expm2chi))/2.) ;
-			up = 2.*a*r*sqrt(1. + up1*up1)/sqrt(AA*SS*DD) +
-				sqrt(SS/AA)*up1/sth ;
+  DTd = 10.; /* dumping frequency, in units of M */
+  DTl = 10. ;	/* logfile frequency, in units of M */
+  DTi = 10. ; 	/* image file frequ., in units of M */
+  DTr = 10. ; /* restart file frequ., in units of M */
+  DTr01 = 10000. ; /* restart file frequ., in timesteps */
+
+  /* start diagnostic counters */
+  dump_cnt = 0 ;
+  image_cnt = 0 ;
+  rdump_cnt = 0 ;
+  rdump01_cnt = 0 ;
+  defcon = 1. ;
+
+  rhomax = 0. ;
+  umax = 0. ;
+  //ZSLOOP(0,N1-1,0,N2-1,0,N3-1) {
+  for(iglob=0;iglob<mpi_ntot[1];iglob++) {
+    for(jglob=0;jglob<mpi_ntot[2];jglob++) {
+      for(kglob=0;kglob<mpi_ntot[3];kglob++) {
+        
+        rancval = ranc(0);
+        i = iglob-mpi_startn[1];
+        j = jglob-mpi_startn[2];
+        k = kglob-mpi_startn[3];
+        if(i<0 ||
+           j<0 ||
+           k<0 ||
+           i>=N1 ||
+           j>=N2 ||
+           k>=N3){
+          continue;
+        }
+        get_phys_coord(i,j,k,&r,&th,&phi) ;
+
+        sth = sin(th) ;
+        cth = cos(th) ;
+
+        /* calculate lnh */
+        DD = r*r - 2.*r + a*a ;
+        AA = (r*r + a*a)*(r*r + a*a) - DD*a*a*sth*sth ;
+        SS = r*r + a*a*cth*cth ;
+
+        thin = M_PI/2. ;
+        sthin = sin(thin) ;
+        cthin = cos(thin) ;
+        DDin = rin*rin - 2.*rin + a*a ;
+        AAin = (rin*rin + a*a)*(rin*rin + a*a) 
+                - DDin*a*a*sthin*sthin ;
+        SSin = rin*rin + a*a*cthin*cthin ;
+
+        if(r >= rin) {
+          lnh = 0.5*log((1. + sqrt(1. + 4.*(l*l*SS*SS)*DD/
+                  (AA*sth*AA*sth)))/(SS*DD/AA)) 
+                  - 0.5*sqrt(1. + 4.*(l*l*SS*SS)*DD/(AA*AA*sth*sth))
+                  - 2.*a*r*l/AA 
+                  - (0.5*log((1. + sqrt(1. + 4.*(l*l*SSin*SSin)*DDin/
+                  (AAin*AAin*sthin*sthin)))/(SSin*DDin/AAin)) 
+                  - 0.5*sqrt(1. + 4.*(l*l*SSin*SSin)*DDin/
+                          (AAin*AAin*sthin*sthin)) 
+                  - 2.*a*rin*l/AAin ) ;
+        }
+        else
+          lnh = 1. ;
 
 
-			p[i][j][RHO] = rho ;
-			if(rho > rhomax) rhomax = rho ;
-			p[i][j][UU] = u*(1. + 4.e-2*(ranc(0)-0.5)) ;
-			if(u > umax && r > rin) umax = u ;
-			p[i][j][U1] = ur ;
-			p[i][j][U2] = uh ;
+        /* regions outside torus */
+        if(lnh < 0. || r < rin) {
+          //reset density and internal energy to zero outside torus
+          rho = 0.; //1.e-7*RHOMIN ;
+          u = 0.; //1.e-7*UUMIN ;
 
-			p[i][j][U3] = up ;
+          /* these values are demonstrably physical
+             for all values of a and r */
+          /*
+          ur = -1./(r*r) ;
+          uh = 0. ;
+          up = 0. ;
+          */
 
-			/* convert from 4-vel to 3-vel */
-			coord_transform(p[i][j],i,j) ;
-		}
+          ur = 0. ;
+          uh = 0. ;
+          up = 0. ;
 
-		p[i][j][B1] = 0. ;
-		p[i][j][B2] = 0. ;
-		p[i][j][B3] = 0. ;
+          /*
+          get_geometry(i,j,CENT,&geom) ;
+          ur = geom.gcon[0][1]/geom.gcon[0][0] ;
+          uh = geom.gcon[0][2]/geom.gcon[0][0] ;
+          up = geom.gcon[0][3]/geom.gcon[0][0] ;
+          */
 
-	}
+          p[i][j][k][RHO] = rho ;
+          p[i][j][k][UU] = u ;
+          p[i][j][k][U1] = ur ;
+          p[i][j][k][U2] = uh ;
+          p[i][j][k][U3] = up ;
+        }
+        /* region inside magnetized torus; u^i is calculated in
+         * Boyer-Lindquist coordinates, as per Fishbone & Moncrief,
+         * so it needs to be transformed at the end */
+        else { 
+          hm1 = exp(lnh) - 1. ;
+          rho = pow(hm1*(gam - 1.)/(kappa*gam),
+                                  1./(gam - 1.)) ; 
+          u = kappa*pow(rho,gam)/(gam - 1.) ;
+          ur = 0. ;
+          uh = 0. ;
 
-	/* Normalize the densities so that max(rho) = 1 */
-	fprintf(stderr,"rhomax: %g\n",rhomax) ;
-	ZSLOOP(0,N1-1,0,N2-1) {
-		p[i][j][RHO] /= rhomax ;
-		p[i][j][UU]  /= rhomax ;
-	}
-	umax /= rhomax ;
-	rhomax = 1. ;
-	fixup(p) ;
-	bound_prim(p) ;
+          /* calculate u^phi */
+          expm2chi = SS*SS*DD/(AA*AA*sth*sth) ;
+          up1 = sqrt((-1. + sqrt(1. + 4.*l*l*expm2chi))/2.) ;
+          up = 2.*a*r*sqrt(1. + up1*up1)/sqrt(AA*SS*DD) +
+                  sqrt(SS/AA)*up1/sth ;
 
-	/* first find corner-centered vector potential */
-	ZSLOOP(0,N1,0,N2) A[i][j] = 0. ;
-        ZSLOOP(0,N1,0,N2) {
-                /* vertical field version */
-                /*
-                coord(i,j,CORN,X) ;
-                bl_coord(X,&r,&th) ;
 
-                A[i][j] = 0.5*r*sin(th) ;
-                */
+          p[i][j][k][RHO] = rho ;
+          if(rho > rhomax) rhomax = rho ;
+          p[i][j][k][UU] = u*(1. + 4.e-2*(rancval-0.5)) ;
+          if(u > umax && r > rin) umax = u ;
+          p[i][j][k][U1] = ur ;
+          p[i][j][k][U2] = uh ;
 
-                /* field-in-disk version */
-		/* flux_ct */
-                rho_av = 0.25*(
-                        p[i][j][RHO] +
-                        p[i-1][j][RHO] +
-                        p[i][j-1][RHO] +
-                        p[i-1][j-1][RHO]) ;
+          p[i][j][k][U3] = up ;
 
-                q = rho_av/rhomax - 0.2 ;
-                if(q > 0.) A[i][j] = q ;
-
+          /* convert from 4-vel in BL coords to relative 4-vel in code coords */
+          coord_transform(p[i][j][k],i,j,k) ;
         }
 
-	/* now differentiate to find cell-centered B,
-	   and begin normalization */
-	bsq_max = 0. ;
-	ZLOOP {
-		get_geometry(i,j,CENT,&geom) ;
+        p[i][j][k][B1] = 0. ;
+        p[i][j][k][B2] = 0. ;
+        p[i][j][k][B3] = 0. ;
+      }
+    }
+  }
 
-		/* flux-ct */
-		p[i][j][B1] = -(A[i][j] - A[i][j+1] 
-				+ A[i+1][j] - A[i+1][j+1])/(2.*dx[2]*geom.g) ;
-		p[i][j][B2] = (A[i][j] + A[i][j+1] 
-				- A[i+1][j] - A[i+1][j+1])/(2.*dx[1]*geom.g) ;
+#ifdef MPI
+  //exchange the info between the MPI processes to get the true max
+  MPI_Allreduce(MPI_IN_PLACE,&rhomax,1,MPI_DOUBLE,MPI_MAX,MPI_COMM_WORLD);
+  MPI_Allreduce(MPI_IN_PLACE,&umax,1,MPI_DOUBLE,MPI_MAX,MPI_COMM_WORLD);
+#endif
+  
+  /* Normalize the densities so that max(rho) = 1 */
+  if(MASTER==mpi_rank) fprintf(stderr,"rhomax: %g\n",rhomax) ;
+  ZSLOOP(0,N1-1,0,N2-1,0,N3-1) {
+          p[i][j][k][RHO] /= rhomax ;
+          p[i][j][k][UU]  /= rhomax ;
+  }
+  umax /= rhomax ;
+  kappa *= pow(rhomax,gam-1);
+  global_kappa = kappa;
+  rhomax = 1. ;
 
-		p[i][j][B3] = 0. ;
+  bound_prim(p) ;
 
-		bsq_ij = bsq_calc(p[i][j],&geom) ;
-		if(bsq_ij > bsq_max) bsq_max = bsq_ij ;
-	}
-	fprintf(stderr,"initial bsq_max: %g\n",bsq_max) ;
+  if (WHICHFIELD == NORMALFIELD) {
+    aphipow = 0.;
+  }
+  else {
+    fprintf(stderr, "Unknown field type: %d\n", (int)WHICHFIELD);
+    exit(321);
+  }
 
-	/* finally, normalize to set field strength */
-	beta_act = (gam - 1.)*umax/(0.5*bsq_max) ;
-	fprintf(stderr,"initial beta: %g (should be %g)\n",beta_act,beta) ;
-	norm = sqrt(beta_act/beta) ;
-	bsq_max = 0. ;
-	ZLOOP {
-		p[i][j][B1] *= norm ;
-		p[i][j][B2] *= norm ;
+  /* first find corner-centered vector potential */
+  ZSLOOP(0,N1-1+D1,0,N2-1+D2,0,N3-1+D3) A[i][j][k] = 0. ;
+  ZSLOOP(0,N1-1+D1,0,N2-1+D2,0,N3-1+D3) {
+          /* radial field version */
+          /*
+          coord(i,j,k,CORN,X) ;
+          bl_coord(X,&r,&th,&phi) ;
+         
+          A[i][j][k] = (1-cos(th)) ;
+          */
 
-		get_geometry(i,j,CENT,&geom) ;
-		bsq_ij = bsq_calc(p[i][j],&geom) ;
-		if(bsq_ij > bsq_max) bsq_max = bsq_ij ;
-	}
-	beta_act = (gam - 1.)*umax/(0.5*bsq_max) ;
-	fprintf(stderr,"final beta: %g (should be %g)\n",beta_act,beta) ;
+    
+          /* vertical field version */
+          /*
+          coord(i,j,k,CORN,X) ;
+          bl_coord(X,&r,&th,&phi) ;
 
-	/* enforce boundary conditions */
-	fixup(p) ;
-	bound_prim(p) ;
+          A[i][j][k] = r*r*sin(th)*sin(th) ;
+          */
+    
+    
+
+          /* field-in-disk version */
+          /* flux_ct */
+    
+      //cannot use get_phys_coords() here because it can only provide coords at CENT
+      coord(i,j,k,CORN,X) ;
+      bl_coord(X,&r,&th,&phi) ;
 
 
-#if( DO_FONT_FIX ) 
-	set_Katm();
+          rho_av = 0.25*(
+                  p[i][j][k][RHO] +
+                  p[i-1][j][k][RHO] +
+                  p[i][j-1][k][RHO] +
+                  p[i-1][j-1][k][RHO]) ;
+
+          q = pow(r,aphipow)*rho_av/rhomax ;
+          if (WHICHFIELD == NORMALFIELD) {
+            q -= 0.2;
+          }
+          if(q > 0.) A[i][j][k] = q ;
+
+  }
+  
+  fixup(p) ;
+
+  /* now differentiate to find cell-centered B,
+     and begin normalization */
+  
+  bsq_max = compute_B_from_A(A,p);
+  
+  if(WHICHFIELD == NORMALFIELD) {
+    if(MASTER==mpi_rank)
+      fprintf(stderr,"initial bsq_max: %g\n",bsq_max) ;
+
+    /* finally, normalize to set field strength */
+    beta_act =(gam - 1.)*umax/(0.5*bsq_max) ;
+
+    if(MASTER==mpi_rank)
+      fprintf(stderr,"initial beta: %g (should be %g)\n",beta_act,beta) ;
+    
+    if(WHICH_FIELD_NORMALIZATION == NORMALIZE_FIELD_BY_BETAMIN) {
+      beta_act = normalize_B_by_beta(beta, p, 10*rmax, &norm);
+    }
+    else if(WHICH_FIELD_NORMALIZATION == NORMALIZE_FIELD_BY_MAX_RATIO) {
+      beta_act = normalize_B_by_maxima_ratio(beta, p, &norm);
+    }
+    else {
+      if(i_am_the_master) {
+        fprintf(stderr, "Unknown magnetic field normalization %d\n",
+                WHICH_FIELD_NORMALIZATION);
+        MPI_Finalize();
+        exit(2345);
+      }
+    }
+
+    if(MASTER==mpi_rank)
+      fprintf(stderr,"final beta: %g (should be %g)\n",beta_act,beta) ;
+  }
+
+    
+  /* enforce boundary conditions */
+  fixup(p) ;
+  bound_prim(p) ;
+
+
+
+
+#if( DO_FONT_FIX )
+  set_Katm();
 #endif 
 
 
 }
 
+//note that only axisymmetric A is supported
+double compute_Amax( double (*A)[N2+D2][N3+D3] )
+{
+  double Amax = 0.;
+  int i, j, k;
+  struct of_geom geom;
+  
+  ZLOOP {
+    if(A[i][j][k] > Amax) Amax = A[i][j][k];
+  }
+  
+#ifdef MPI
+  //exchange the info between the MPI processes to get the true max
+  MPI_Allreduce(MPI_IN_PLACE,&Amax,1,MPI_DOUBLE,MPI_MAX,MPI_COMM_WORLD);
+#endif
+  
+  return(Amax);
+}
+
+
+//note that only axisymmetric A is supported
+double compute_B_from_A( double (*A)[N2+D2][N3+D3], double (*p)[N2M][N3M][NPR] )
+{
+  double bsq_max = 0., bsq_ij ;
+  int i, j, k;
+  struct of_geom geom;
+  
+  ZLOOP {
+    get_geometry(i,j,k,CENT,&geom) ;
+    
+    /* flux-ct */
+    p[i][j][k][B1] = -(A[i][j][k] - A[i][j+1][k]
+                       + A[i+1][j][k] - A[i+1][j+1][k])/(2.*dx[2]*geom.g) ;
+    p[i][j][k][B2] = (A[i][j][k] + A[i][j+1][k]
+                      - A[i+1][j][k] - A[i+1][j+1][k])/(2.*dx[1]*geom.g) ;
+    
+    p[i][j][k][B3] = 0. ;
+    
+    bsq_ij = bsq_calc(p[i][j][k],&geom) ;
+    if(bsq_ij > bsq_max) bsq_max = bsq_ij ;
+  }
+#ifdef MPI
+  //exchange the info between the MPI processes to get the true max
+  MPI_Allreduce(MPI_IN_PLACE,&bsq_max,1,MPI_DOUBLE,MPI_MAX,MPI_COMM_WORLD);
+#endif
+
+  return(bsq_max);
+}
+
+double normalize_B_by_maxima_ratio(double beta_target, double (*p)[N2M][N3M][NPR], double *norm_value)
+{
+  double beta_act, bsq_ij, u_ij, umax = 0., bsq_max = 0.;
+  double norm;
+  int i, j, k;
+  struct of_geom geom;
+  
+  ZLOOP {
+    get_geometry(i,j,k,CENT,&geom) ;
+    bsq_ij = bsq_calc(p[i][j][k],&geom) ;
+    if(bsq_ij > bsq_max) bsq_max = bsq_ij ;
+    u_ij = p[i][j][k][UU];
+    if(u_ij > umax) umax = u_ij;
+  }
+#ifdef MPI
+  //exchange the info between the MPI processes to get the true max
+  MPI_Allreduce(MPI_IN_PLACE,&umax,1,MPI_DOUBLE,MPI_MAX,MPI_COMM_WORLD);
+  MPI_Allreduce(MPI_IN_PLACE,&bsq_max,1,MPI_DOUBLE,MPI_MAX,MPI_COMM_WORLD);
+#endif
+
+  /* finally, normalize to set field strength */
+  beta_act =(gam - 1.)*umax/(0.5*bsq_max) ;
+  
+  norm = sqrt(beta_act/beta_target) ;
+  bsq_max = 0. ;
+  ZLOOP {
+    p[i][j][k][B1] *= norm ;
+    p[i][j][k][B2] *= norm ;
+    
+    get_geometry(i,j,k,CENT,&geom) ;
+    bsq_ij = bsq_calc(p[i][j][k],&geom) ;
+    if(bsq_ij > bsq_max) bsq_max = bsq_ij ;
+  }
+#ifdef MPI
+  //exchange the info between the MPI processes to get the true max
+  MPI_Allreduce(MPI_IN_PLACE,&bsq_max,1,MPI_DOUBLE,MPI_MAX,MPI_COMM_WORLD);
+#endif
+  
+  beta_act = (gam - 1.)*umax/(0.5*bsq_max) ;
+
+  if(norm_value) {
+    *norm_value = norm;
+  }
+  return(beta_act);
+}
+
+//normalize the magnetic field using the values inside r < rmax
+double normalize_B_by_beta(double beta_target, double (*p)[N2M][N3M][NPR], double rmax, double *norm_value)
+{
+  double beta_min = 1e100, beta_ij, beta_act, bsq_ij, u_ij, umax = 0., bsq_max = 0.;
+  double norm;
+  int i, j, k;
+  struct of_geom geom;
+  double X[NDIM], r, th, ph;
+  
+  ZLOOP {
+    coord(i, j, k, CENT, X);
+    bl_coord(X, &r, &th, &ph);
+    if (r>rmax) {
+      continue;
+    }
+    get_geometry(i,j,k,CENT,&geom) ;
+    bsq_ij = bsq_calc(p[i][j][k],&geom) ;
+    u_ij = p[i][j][k][UU];
+    beta_ij = (gam - 1.)*u_ij/(0.5*(bsq_ij+SMALL)) ;
+    if(beta_ij < beta_min) beta_min = beta_ij ;
+  }
+#ifdef MPI
+  //exchange the info between the MPI processes to get the true max
+  MPI_Allreduce(MPI_IN_PLACE,&beta_min,1,MPI_DOUBLE,MPI_MIN,MPI_COMM_WORLD);
+#endif
+  
+  /* finally, normalize to set field strength */
+  beta_act = beta_min;
+  
+  norm = sqrt(beta_act/beta_target) ;
+  beta_min = 1e100;
+  ZLOOP {
+    p[i][j][k][B1] *= norm ;
+    p[i][j][k][B2] *= norm ;
+    p[i][j][k][B3] *= norm ;
+    get_geometry(i,j,k,CENT,&geom) ;
+    bsq_ij = bsq_calc(p[i][j][k],&geom) ;
+    u_ij = p[i][j][k][UU];
+    beta_ij = (gam - 1.)*u_ij/(0.5*(bsq_ij+SMALL)) ;
+    if(beta_ij < beta_min) beta_min = beta_ij ;
+  }
+#ifdef MPI
+  //exchange the info between the MPI processes to get the true max
+  MPI_Allreduce(MPI_IN_PLACE,&beta_min,1,MPI_DOUBLE,MPI_MIN,MPI_COMM_WORLD);
+#endif
+  
+  beta_act = beta_min;
+
+  if(norm_value) {
+    *norm_value = norm;
+  }
+
+  return(beta_act);
+}
+
+/////////////////////////////////////////////////////////////////
+//
+// init_torus_grb() preliminaries
+//
+/////////////////////////////////////////////////////////////////
+#define JMAX 100
+
+double rtbis(double (*func)(double,double*), double *parms, double x1, double x2, double xacc)
+//Using bisection, find the root of a function func known to lie between x1 and x2. The root,
+//returned as rtbis, will be refined until its accuracy is \pm xacc.
+//taken from http://gpiserver.dcom.upv.es/Numerical_Recipes/bookcpdf/c9-1.pdf
+{
+  int j;
+  double dx,f,fmid,xmid,rtb;
+  f=(*func)(x1, parms);
+  fmid=(*func)(x2, parms);
+  if (f*fmid >= 0.0) {
+    fprintf( stderr, "f(%g)=%g f(%g)=%g\n", x1, f, x2, fmid );
+    fprintf(stderr, "Root must be bracketed for bisection in rtbis\n");
+    exit(434);
+  }
+  rtb = (f < 0.0) ? (dx=x2-x1,x1) : (dx=x1-x2,x2); //Orient the search so that f>0 lies at x+dx.
+  for (j=1;j<=JMAX;j++) {
+    fmid=(*func)(xmid=rtb+(dx *= 0.5),parms); //Bisection loop.
+    if (fmid <= 0.0) {
+      rtb=xmid;
+    }
+    if (fabs(dx) < xacc || fmid == 0.0) {
+      return rtb;
+    }
+  }
+  fprintf(stderr, "Too many bisections in rtbis");
+  return 0.0; //Never get here.
+}
+
+double lfunc( double lin, double *parms )
+{
+  double gutt, gutp, gupp, al, c;
+  double ans;
+  
+  gutt = parms[0];
+  gutp = parms[1];
+  gupp = parms[2];
+  al = parms[3];
+  c = parms[4];
+  
+  ans = (gutp - lin * gupp)/( gutt - lin * gutp) - c *pow(lin/c,al); // (lin/c) form avoids catastrophic cancellation due to al = 2/n - 1 >> 1 for 2-n << 1
+  
+  return(ans);
+}
+
+void compute_gu( double r, double th, double a, double *gutt, double *gutp, double *gupp )
+{
+  //metric (expressions taken from eqtorus_c.nb):
+  *gutt = -1 - 4*r*(pow(a,2) + pow(r,2))*
+  pow((-2 + r)*r + pow(a,2),-1)*
+  pow(pow(a,2) + cos(2*th)*pow(a,2) + 2*pow(r,2),-1);
+  
+  *gutp = -4*a*r*pow((-2 + r)*r + pow(a,2),-1)*
+  pow(pow(a,2) + cos(2*th)*pow(a,2) + 2*pow(r,2),-1);
+  
+  *gupp = 2*((-2 + r)*r + pow(a,2)*pow(cos(th),2))*
+  pow(sin(th),-2)*pow((-2 + r)*r + pow(a,2),-1)*
+  pow(pow(a,2) + cos(2*th)*pow(a,2) + 2*pow(r,2),-1);
+}
+
+double thintorus_findl( double r, double th, double a, double c, double al )
+{
+  double gutt, gutp, gupp;
+  double parms[5];
+  double l;
+  
+  compute_gu( r, th, a, &gutt, &gutp, &gupp );
+  
+  //store params in an array before function call
+  parms[0] = gutt;
+  parms[1] = gutp;
+  parms[2] = gupp;
+  parms[3] = al;
+  parms[4] = c;
+  
+  //solve for lin using bisection, specify large enough root search range, (1e-3, 1e3)
+  //demand accuracy 5x machine prec.
+  //in non-rel limit l_K = sqrt(r), use 10x that as the upper limit:
+  l = rtbis( &lfunc, parms, 1, 10*sqrt(r), 5.*DBL_EPSILON );
+  
+  return( l );
+}
+
+double compute_udt( double r, double th, double a, double l )
+{
+  double gutt, gutp, gupp;
+  double udt;
+  
+  compute_gu( r, th, a, &gutt, &gutp, &gupp );
+  
+  udt = -sqrt(- 1/(gutt - 2 * l * gutp + l * l * gupp));
+  
+  return( udt );
+}
+
+
+double compute_omega( double r, double th, double a, double l )
+{
+  double gutt, gutp, gupp;
+  double omega;
+  
+  compute_gu( r, th, a, &gutt, &gutp, &gupp );
+  
+  omega = (gutp - gupp*l)*pow(gutt - gutp*l,-1);
+  
+  return( omega );
+}
+
+double compute_uuphi( double r, double th, double a, double l )
+{
+  double gutt, gutp, gupp;
+  double udt, udphi, uuphi;
+  
+  //u_t
+  udt = compute_udt(r, th, a, l);
+
+  //u_phi
+  udphi = -udt * l;
+  
+  compute_gu( r, th, a, &gutt, &gutp, &gupp );
+  
+  //u^phi
+  uuphi = gutp * udt + gupp * udphi;
+  return( uuphi );
+}
+
+double compute_l_from_omega( double r, double th, double a, double omega )
+{
+  double gutt, gutp, gupp;
+  double l;
+  
+  compute_gu( r, th, a, &gutt, &gutp, &gupp );
+  
+  l = (gutp - omega * gutt)/(gupp - omega * gutp);
+  
+  return( l );
+}
+
 void init_bondi()
 {
-	int i,j ;
-	double r,th,sth,cth ;
+	int i,j,k ;
+	double r,th,phi,sth,cth ;
 	double ur,uh,up,u,rho ;
 	double X[NDIM] ;
 	struct of_geom geom ;
@@ -356,7 +769,7 @@ void init_bondi()
 	double kappa,hm1 ;
 
 	/* for magnetic field */
-	double A[N1+1][N2+1] ;
+	double A[N1+1][N2+1][N3+1] ;
 	double rho_av,rhomax,umax,beta,bsq_ij,bsq_max,norm,q,beta_act ;
 	double rmax, lfish_calc(double rmax) ;
 
@@ -380,6 +793,10 @@ void init_bondi()
 	R0 = -2*rhor ;
         Rin = 0.5*rhor ;
         Rout = 1e3 ;
+        rbr = Rout*10.;
+        npow2=4.0; //power exponent
+        cpow2=1.0; //exponent prefactor (the larger it is, the more hyperexponentiation is)
+
 
         t = 0. ;
         hslope = 1.0 ; //uniform angular grid
@@ -392,34 +809,37 @@ void init_bondi()
 	  //1D problem (since only 1 cell in theta-direction), use a restricted theta-wedge
 	  fractheta = 1.e-2;
 	}
+        fracphi = 1.;
 
         set_arrays() ;
         set_grid() ;
 
-	coord(-2,0,CENT,X) ;
-	bl_coord(X,&r,&th) ;
+	coord(-2,0,0,CENT,X) ;
+	bl_coord(X,&r,&th,&phi) ;
 	fprintf(stderr,"rmin: %g\n",r) ;
 	fprintf(stderr,"rmin/rm: %g\n",r/(1. + sqrt(1. - a*a))) ;
 
         /* output choices */
 	tf = Rout ;
 
-	DTd = 50. ;	/* dumping frequency, in units of M */
+	DTd = 2. ;	/* dumping frequency, in units of M */
 	DTl = 2. ;	/* logfile frequency, in units of M */
 	DTi = 2. ; 	/* image file frequ., in units of M */
-	DTr = 1000 ; 	/* restart file frequ., in timesteps */
+        DTr = 50 ; /* restart file frequ., in units of M */
+        DTr01 = 1000 ; /* restart file frequ., in timesteps */
 
 	/* start diagnostic counters */
 	dump_cnt = 0 ;
 	image_cnt = 0 ;
 	rdump_cnt = 0 ;
+        rdump01_cnt = 0 ;
 	defcon = 1. ;
 
 	rhomax = 0. ;
 	umax = 0. ;
-	ZSLOOP(0,N1-1,0,N2-1) {
-		coord(i,j,CENT,X) ;
-		bl_coord(X,&r,&th) ;
+	ZSLOOP(0,N1-1,0,N2-1,0,N3-1) {
+		coord(i,j,k,CENT,X) ;
+		bl_coord(X,&r,&th,&phi) ;
 
 		sth = sin(th) ;
 		cth = cos(th) ;
@@ -448,11 +868,11 @@ void init_bondi()
                         up = geom.gcon[0][3]/geom.gcon[0][0] ;
 			*/
 
-			p[i][j][RHO] = rho ;
-			p[i][j][UU] = u ;
-			p[i][j][U1] = ur ;
-			p[i][j][U2] = uh ;
-			p[i][j][U3] = up ;
+			p[i][j][k][RHO] = rho ;
+			p[i][j][k][UU] = u ;
+			p[i][j][k][U1] = ur ;
+			p[i][j][k][U2] = uh ;
+			p[i][j][k][U3] = up ;
 		}
 		/* region inside initial uniform density */
 		else { 
@@ -462,38 +882,38 @@ void init_bondi()
 		  uh = 0. ;
 
 
-		  p[i][j][RHO] = rho ;
+		  p[i][j][k][RHO] = rho ;
 		  if(rho > rhomax) rhomax = rho ;
-		  p[i][j][UU] = u;
+		  p[i][j][k][UU] = u;
 		  if(u > umax && r > rin) umax = u ;
-		  p[i][j][U1] = ur ;
-		  p[i][j][U2] = uh ;
-		  
-		  p[i][j][U3] = up ;
+		  p[i][j][k][U1] = ur ;
+		  p[i][j][k][U2] = uh ;
+		  p[i][j][k][U3] = up ;
 		  
 		  /* convert from 4-vel to 3-vel */
-		  coord_transform(p[i][j],i,j) ;
+		  coord_transform(p[i][j][k],i,j,k) ;
 		}
 
-		p[i][j][B1] = 0. ;
-		p[i][j][B2] = 0. ;
-		p[i][j][B3] = 0. ;
+		p[i][j][k][B1] = 0. ;
+		p[i][j][k][B2] = 0. ;
+		p[i][j][k][B3] = 0. ;
 
 	}
 
 	fixup(p) ;
 	bound_prim(p) ;
+    
 
 #if(0) //disable for now
 	/* first find corner-centered vector potential */
-	ZSLOOP(0,N1,0,N2) A[i][j] = 0. ;
-        ZSLOOP(0,N1,0,N2) {
+	ZSLOOP(0,N1,0,N2,0,N3) A[i][j][k] = 0. ;
+        ZSLOOP(0,N1,0,N2,0,N3) {
                 /* vertical field version */
                 /*
-                coord(i,j,CORN,X) ;
-                bl_coord(X,&r,&th) ;
+                coord(i,j,l,CORN,X) ;
+                bl_coord(X,&r,&th,&phi) ;
 
-                A[i][j] = 0.5*r*sin(th) ;
+                A[i][j][k] = 0.5*r*sin(th) ;
                 */
 
                 /* field-in-disk version */
@@ -505,7 +925,7 @@ void init_bondi()
                         p[i-1][j-1][RHO]) ;
 
                 q = rho_av/rhomax - 0.2 ;
-                if(q > 0.) A[i][j] = q ;
+                if(q > 0.) A[i][j][k] = q ;
 
         }
 
@@ -513,17 +933,17 @@ void init_bondi()
 	   and begin normalization */
 	bsq_max = 0. ;
 	ZLOOP {
-		get_geometry(i,j,CENT,&geom) ;
+		get_geometry(i,j,k,CENT,&geom) ;
 
 		/* flux-ct */
-		p[i][j][B1] = -(A[i][j] - A[i][j+1] 
-				+ A[i+1][j] - A[i+1][j+1])/(2.*dx[2]*geom.g) ;
-		p[i][j][B2] = (A[i][j] + A[i][j+1] 
-				- A[i+1][j] - A[i+1][j+1])/(2.*dx[1]*geom.g) ;
+		p[i][j][B1] = -(A[i][j][k] - A[i][j+1][k]
+				+ A[i+1][j][k] - A[i+1][j+1][k])/(2.*dx[2]*geom.g) ;
+		p[i][j][B2] = (A[i][j][k] + A[i][j+1][k]
+				- A[i+1][j][k] - A[i+1][j+1][k])/(2.*dx[1]*geom.g) ;
 
 		p[i][j][B3] = 0. ;
 
-		bsq_ij = bsq_calc(p[i][j],&geom) ;
+		bsq_ij = bsq_calc(p[i][j][k],&geom) ;
 		if(bsq_ij > bsq_max) bsq_max = bsq_ij ;
 	}
 	fprintf(stderr,"initial bsq_max: %g\n",bsq_max) ;
@@ -534,11 +954,11 @@ void init_bondi()
 	norm = sqrt(beta_act/beta) ;
 	bsq_max = 0. ;
 	ZLOOP {
-		p[i][j][B1] *= norm ;
-		p[i][j][B2] *= norm ;
+		p[i][j][k][B1] *= norm ;
+		p[i][j][k][B2] *= norm ;
 
-		get_geometry(i,j,CENT,&geom) ;
-		bsq_ij = bsq_calc(p[i][j],&geom) ;
+		get_geometry(i,j,k,CENT,&geom) ;
+		bsq_ij = bsq_calc(p[i][j][k],&geom) ;
 		if(bsq_ij > bsq_max) bsq_max = bsq_ij ;
 	}
 	beta_act = (gam - 1.)*umax/(0.5*bsq_max) ;
@@ -547,8 +967,12 @@ void init_bondi()
 	/* enforce boundary conditions */
 	fixup(p) ;
 	bound_prim(p) ;
+    
 #endif
 
+    
+
+    
 #if( DO_FONT_FIX ) 
 	set_Katm();
 #endif 
@@ -558,8 +982,8 @@ void init_bondi()
 
 void init_monopole(double Rout_val)
 {
-	int i,j ;
-	double r,th,sth,cth ;
+	int i,j,k ;
+	double r,th,phi,sth,cth ;
 	double ur,uh,up,u,rho ;
 	double X[NDIM] ;
 	struct of_geom geom ;
@@ -581,7 +1005,7 @@ void init_monopole(double Rout_val)
 	/* disk parameters (use fishbone.m to select new solutions) */
         a = 0.9375 ;
         rin = 6. ;
-	rmax = 12. ;
+        rmax = 12. ;
         l = lfish_calc(rmax) ;
 
 	kappa = 1.e-3 ;
@@ -593,9 +1017,12 @@ void init_monopole(double Rout_val)
         cour = 0.9 ;
         dt = 1.e-5 ;
 	rhor = (1. + sqrt(1. - a*a)) ;
-	R0 = -4*rhor ;
+	R0 = -4*rhor;
         Rin = 0.7*rhor ;
         Rout = Rout_val ;
+        rbr = Rout*10.;
+    npow2=4.0; //power exponent
+    cpow2=1.0; //exponent prefactor (the larger it is, the more hyperexponentiation is)
 
         t = 0. ;
         hslope = 1. ;
@@ -609,33 +1036,37 @@ void init_monopole(double Rout_val)
 	  fractheta = 1.e-2;
 	}
 
+        fracphi = 1.;
+
         set_arrays() ;
         set_grid() ;
 
-	coord(-2,0,CENT,X) ;
-	bl_coord(X,&r,&th) ;
+	coord(-2,0,0,CENT,X) ;
+	bl_coord(X,&r,&th,&phi) ;
 	fprintf(stderr,"rmin: %g\n",r) ;
 	fprintf(stderr,"rmin/rm: %g\n",r/(1. + sqrt(1. - a*a))) ;
 
         /* output choices */
 	tf = 2*Rout ;
 
-	DTd = 10. ;	/* dumping frequency, in units of M */
+	DTd = 1. ;	/* dumping frequency, in units of M */
 	DTl = 50. ;	/* logfile frequency, in units of M */
 	DTi = 50. ; 	/* image file frequ., in units of M */
-	DTr = 1000 ; 	/* restart file frequ., in timesteps */
+        DTr = 1. ; /* restart file frequ., in units of M */
+	DTr01 = 1000 ; 	/* restart file frequ., in timesteps */
 
 	/* start diagnostic counters */
 	dump_cnt = 0 ;
 	image_cnt = 0 ;
 	rdump_cnt = 0 ;
+        rdump01_cnt = 0 ;
 	defcon = 1. ;
 
 	rhomax = 0. ;
 	umax = 0. ;
-	ZSLOOP(0,N1-1,0,N2-1) {
-	  coord(i,j,CENT,X) ;
-	  bl_coord(X,&r,&th) ;
+	ZSLOOP(0,N1-1,0,N2-1,0,N3-1) {
+	  coord(i,j,k,CENT,X) ;
+	  bl_coord(X,&r,&th,&phi) ;
 
 	  sth = sin(th) ;
 	  cth = cos(th) ;
@@ -668,32 +1099,33 @@ void init_monopole(double Rout_val)
 	    up = geom.gcon[0][3]/geom.gcon[0][0] ;
 	  */
 
-	  p[i][j][RHO] = rho ;
-	  p[i][j][UU] = u ;
-	  p[i][j][U1] = ur ;
-	  p[i][j][U2] = uh ;
-	  p[i][j][U3] = up ;
-	  p[i][j][B1] = 0. ;
-	  p[i][j][B2] = 0. ;
-	  p[i][j][B3] = 0. ;
+	  p[i][j][k][RHO] = rho ;
+	  p[i][j][k][UU] = u ;
+	  p[i][j][k][U1] = ur ;
+	  p[i][j][k][U2] = uh ;
+	  p[i][j][k][U3] = up ;
+	  p[i][j][k][B1] = 0. ;
+	  p[i][j][k][B2] = 0. ;
+	  p[i][j][k][B3] = 0. ;
 	}
 
 	rhomax = 1. ;
 	fixup(p) ;
 	bound_prim(p) ;
 
+        //leave A[][] a 2D array for now, which means that magnetic field will be axisymmetric
 	/* first find corner-centered vector potential */
-	ZSLOOP(0,N1,0,N2) A[i][j] = 0. ;
-        ZSLOOP(0,N1,0,N2) {
+	ZSLOOP(0,N1,0,N2,0,0) A[i][j] = 0. ;
+        ZSLOOP(0,N1,0,N2,0,0) {
 #if(0)
                 /* vertical field version */
-                coord(i,j,CORN,X) ;
-                bl_coord(X,&r,&th) ;
-                A[i][j] = 0.5*r*sin(th) ;
+                coord(i,j,k,CORN,X) ;
+                bl_coord(X,&r,&th,&phi) ;
+                A[i][j] = 0.5*pow(r*sin(th),2);
 #elif(1)
                 /* radial (monopolar) field version */
-                coord(i,j,CORN,X) ;
-                bl_coord(X,&r,&th) ;
+                coord(i,j,k,CORN,X) ;
+                bl_coord(X,&r,&th,&phi) ;
                 A[i][j] = (1-cos(th)) ;
 #endif
 
@@ -703,17 +1135,17 @@ void init_monopole(double Rout_val)
 	   and begin normalization */
 	bsq_max = 0. ;
 	ZLOOP {
-		get_geometry(i,j,CENT,&geom) ;
+		get_geometry(i,j,k,CENT,&geom) ;
 
 		/* flux-ct */
-		p[i][j][B1] = -(A[i][j] - A[i][j+1] 
+		p[i][j][k][B1] = -(A[i][j] - A[i][j+1]
 				+ A[i+1][j] - A[i+1][j+1])/(2.*dx[2]*geom.g) ;
-		p[i][j][B2] = (A[i][j] + A[i][j+1] 
+		p[i][j][k][B2] = (A[i][j] + A[i][j+1]
 				- A[i+1][j] - A[i+1][j+1])/(2.*dx[1]*geom.g) ;
 
-		p[i][j][B3] = 0. ;
+		p[i][j][k][B3] = 0. ;
 
-		bsq_ij = bsq_calc(p[i][j],&geom) ;
+		bsq_ij = bsq_calc(p[i][j][k],&geom) ;
 		if(bsq_ij > bsq_max) bsq_max = bsq_ij ;
 	}
 	fprintf(stderr,"initial bsq_max: %g\n",bsq_max) ;
@@ -721,85 +1153,319 @@ void init_monopole(double Rout_val)
 	/* enforce boundary conditions */
 	fixup(p) ;
 	bound_prim(p) ;
+    
+    
 
 
-#if( DO_FONT_FIX ) 
+
+#if( DO_FONT_FIX )
 	set_Katm();
 #endif 
 
 
 }
 
+void init_entwave()
+{
+  int i,j,k ;
+  double x,y,z,sth,cth ;
+  double ur,uh,up,u,rho ;
+  double X[NDIM] ;
+  struct of_geom geom ;
+  double rhor;
+  
+  double myrho, myu, mycs, myv;
+  double delta_rho;
+  double cosa, sina;
+  double delta_ampl = 1.e-1; //amplitude of the wave
+  double k_vec_x = 2 * M_PI;  //wavevector
+  double k_vec_y = 2 * M_PI;
+  double k_vec_len = sqrt( k_vec_x * k_vec_x + k_vec_y * k_vec_y );
+  double tfac = 1.e3; //factor by which to reduce velocity
+  
+
+  /* some physics parameters */
+  gam = 5./3. ;
+  
+  /* some numerical parameters */
+  lim = VANL ;
+  failed = 0 ;	/* start slow */
+  cour = 0.9 ;
+  dt = 1.e-5 ;
+  
+  t = 0. ;
+  hslope = 1. ;
+  
+  if(N2!=1) {
+    //2D problem, use full pi-wedge in theta
+    fractheta = 1.;
+  }
+  else{
+    //1D problem (since only 1 cell in theta-direction), use a restricted theta-wedge
+    fractheta = 1.e-2;
+  }
+  
+  fracphi = 1.;
+
+  set_arrays() ;
+  set_grid() ;
+  
+  
+  myrho = 1.;
+  myu = 4.*myrho / (gam * (gam-1));  //so that mycs is unity
+  
+  mycs = sqrt(gam * (gam-1) * myu / myrho);  //background sound speed
+  myv = 1.;  //velocity with a magnitude of 1
+  
+  /* output choices */
+
+    tf = tfac;///mycs;
+  
+  DTd = tf/10. ;	/* dumping frequency, in units of M */
+  DTl = tf/10. ;	/* logfile frequency, in units of M */
+  DTi = tf/10. ; 	/* image file frequ., in units of M */
+  DTr = tf/10. ; /* restart file frequ., in units of M */
+  DTr01 = 1000 ; 	/* restart file frequ., in timesteps */
+  
+  /* start diagnostic counters */
+  dump_cnt = 0 ;
+  image_cnt = 0 ;
+  rdump_cnt = 0 ;
+  rdump01_cnt = 0 ;
+  defcon = 1. ;
+  
+
+  ZSLOOP(0,N1-1,0,N2-1,0,N3-1) {
+    coord(i,j,k,CENT,X) ;
+    bl_coord(X,&x,&y,&z) ;
+    
+    //applying the perturbations
+    delta_rho = delta_ampl * cos( k_vec_x * x + k_vec_y * y );
+    
+  //  p[i][j][k][RHO] = myrho + delta_rho;
+      if(x<.2){
+          p[i][j][k][RHO] = 1.;
+          p[i][j][k][U2] = 0.;
+
+      }
+      else if (x>.8){
+          p[i][j][k][RHO] = 1.;
+          p[i][j][k][U2] = 0.;
+      }
+      else{
+          p[i][j][k][RHO] = 1e4;
+          p[i][j][k][U2] = 0.;
+
+      }
+    p[i][j][k][UU] = myu/(tfac*tfac);
+    p[i][j][k][U1] = myv/tfac;
+    //p[i][j][k][U2] = myv/tfac;
+    //p[i][j][k][U2] = myv/tfac;//cos(k_vec_x*x);
+    p[i][j][k][U3] = 0 ;
+    p[i][j][k][B1] = 0. ;
+    p[i][j][k][B2] = 0. ;
+    p[i][j][k][B3] = 0. ;
+  }
+  
+  /* enforce boundary conditions */
+  
+  
+  fixup(p) ;
+  bound_prim(p) ;
+  
+  
+  
+  
+  
+#if( DO_FONT_FIX )
+  set_Katm();
+#endif
+  
+  
+}
+
+void init_sndwave()
+{
+  int i,j,k ;
+  double x,y,z,sth,cth ;
+  double ur,uh,up,u,rho ;
+  double X[NDIM] ;
+  struct of_geom geom ;
+  
+  double myrho, myu, mycs, myv;
+  double delta_rho;
+  double cosa, sina;
+  double delta_ampl = 1e-5; //amplitude of the wave
+  double k_vec_x = 2 * M_PI;  //wavevector
+  double k_vec_y = 0;
+  double k_vec_len = sqrt( k_vec_x * k_vec_x + k_vec_y * k_vec_y );
+  double tfac = 1e4; //factor by which to reduce velocity
+  
+  
+  /* some physics parameters */
+  gam = 5./3. ;
+  
+  /* some numerical parameters */
+  lim = VANL ;
+  failed = 0 ;	/* start slow */
+  cour = 0.9 ;
+  dt = 1.e-5 ;
+  
+  t = 0. ;
+  hslope = 1. ;
+  
+  if(N2!=1) {
+    //2D problem, use full pi-wedge in theta
+    fractheta = 1.;
+  }
+  else{
+    //1D problem (since only 1 cell in theta-direction), use a restricted theta-wedge
+    fractheta = 1.e-2;
+  }
+  
+  fracphi = 1.;
+  
+  set_arrays() ;
+  set_grid() ;
+  
+  
+  myrho = 1.;
+  myu = myrho / (gam * (gam-1));  //so that mycs is unity
+  
+  mycs = sqrt(gam * (gam-1) * myu / myrho);  //background sound speed
+  
+  /* output choices */
+  
+  tf = tfac/mycs;
+  
+  DTd = tf/10. ;	/* dumping frequency, in units of M */
+  DTl = tf/10. ;	/* logfile frequency, in units of M */
+  DTi = tf/10. ; 	/* image file frequ., in units of M */
+  DTr = tf/10. ; /* restart file frequ., in units of M */
+  DTr01 = 1000 ; /* restart file frequ., in timesteps */
+  
+  /* start diagnostic counters */
+  dump_cnt = 0 ;
+  image_cnt = 0 ;
+  rdump_cnt = 0 ;
+  rdump01_cnt = 0 ;
+  defcon = 1. ;
+  
+  ZSLOOP(0,N1-1,0,N2-1,0,N3-1) {
+    coord(i,j,k,CENT,X) ;
+    bl_coord(X,&x,&y,&z) ;
+    
+    //applying the perturbations
+    delta_rho = delta_ampl * cos( k_vec_x * x + k_vec_y * y );
+    
+    p[i][j][k][RHO] = myrho + delta_rho;
+    p[i][j][k][UU] = (myu + gam * myu * delta_rho / myrho)/(tfac*tfac);
+    p[i][j][k][U1] = (delta_rho/myrho * mycs * k_vec_x / k_vec_len)/tfac;
+    p[i][j][k][U2] = (delta_rho/myrho * mycs * k_vec_y / k_vec_len)/tfac;
+    p[i][j][k][U3] = 0 ;
+    p[i][j][k][B1] = 0. ;
+    p[i][j][k][B2] = 0. ;
+    p[i][j][k][B3] = 0. ;
+  }
+  
+  /* enforce boundary conditions */
+  
+  
+  fixup(p) ;
+  bound_prim(p) ;
+  
+  
+  
+  
+  
+#if( DO_FONT_FIX )
+  set_Katm();
+#endif
+  
+  
+}
+
+
 /* this version starts w/ BL 4-velocity and
- * converts to 3-velocities in modified
+ * converts to relative 4-velocities in modified
  * Kerr-Schild coordinates */
 
-void coord_transform(double *pr,int ii, int jj)
+void coord_transform(double *pr,int ii, int jj, int kk)
 {
-        double X[NDIM],r,th,ucon[NDIM],trans[NDIM][NDIM],tmp[NDIM] ;
-        double AA,BB,CC,discr ;
-	double alpha,gamma,beta[NDIM] ;
-	struct of_geom geom ;
-	struct of_state q ;
-	int i,j,k ;
+  double X[NDIM],r,th,phi,ucon[NDIM],uconp[NDIM],trans[NDIM][NDIM],tmp[NDIM] ;
+  double AA,BB,CC,discr ;
+  double utconp[NDIM], dxdxp[NDIM][NDIM], dxpdx[NDIM][NDIM] ;
+  struct of_geom geom ;
+  struct of_state q ;
+  int i,j,k,m ;
 
-        coord(ii,jj,CENT,X) ;
-        bl_coord(X,&r,&th) ;
-	blgset(ii,jj,&geom) ;
+  coord(ii,jj,kk,CENT,X) ;
+  bl_coord(X,&r,&th,&phi) ;
+  blgset(ii,jj,kk,&geom) ;
 
-        ucon[1] = pr[U1] ;
-        ucon[2] = pr[U2] ;
-        ucon[3] = pr[U3] ;
+  ucon[1] = pr[U1] ;
+  ucon[2] = pr[U2] ;
+  ucon[3] = pr[U3] ;
 
-        AA =     geom.gcov[TT][TT] ;
-        BB = 2.*(geom.gcov[TT][1]*ucon[1] +
-                 geom.gcov[TT][2]*ucon[2] +
-                 geom.gcov[TT][3]*ucon[3]) ;
-        CC = 1. +
-                geom.gcov[1][1]*ucon[1]*ucon[1] +
-                geom.gcov[2][2]*ucon[2]*ucon[2] +
-                geom.gcov[3][3]*ucon[3]*ucon[3] +
-            2.*(geom.gcov[1][2]*ucon[1]*ucon[2] +
-                geom.gcov[1][3]*ucon[1]*ucon[3] +
-                geom.gcov[2][3]*ucon[2]*ucon[3]) ;
+  AA =     geom.gcov[TT][TT] ;
+  BB = 2.*(geom.gcov[TT][1]*ucon[1] +
+           geom.gcov[TT][2]*ucon[2] +
+           geom.gcov[TT][3]*ucon[3]) ;
+  CC = 1. +
+          geom.gcov[1][1]*ucon[1]*ucon[1] +
+          geom.gcov[2][2]*ucon[2]*ucon[2] +
+          geom.gcov[3][3]*ucon[3]*ucon[3] +
+      2.*(geom.gcov[1][2]*ucon[1]*ucon[2] +
+          geom.gcov[1][3]*ucon[1]*ucon[3] +
+          geom.gcov[2][3]*ucon[2]*ucon[3]) ;
 
-        discr = BB*BB - 4.*AA*CC ;
-        ucon[TT] = (-BB - sqrt(discr))/(2.*AA) ;
-	/* now we've got ucon in BL coords */
+  discr = BB*BB - 4.*AA*CC ;
+  ucon[TT] = (-BB - sqrt(discr))/(2.*AA) ;
+  /* now we've got ucon in BL coords */
 
-	/* transform to Kerr-Schild */
-        /* make transform matrix */
-        DLOOP trans[j][k] = 0. ;
-        DLOOPA trans[j][j] = 1. ;
-        trans[0][1] = 2.*r/(r*r - 2.*r + a*a) ;
-        trans[3][1] = a/(r*r - 2.*r + a*a) ;
+  /* transform to Kerr-Schild */
+  /* make transform matrix */
+  DLOOP trans[j][k] = 0. ;
+  DLOOPA trans[j][j] = 1. ;
+  trans[0][1] = 2.*r/(r*r - 2.*r + a*a) ;
+  trans[3][1] = a/(r*r - 2.*r + a*a) ;
 
-        /* transform ucon */
-        DLOOPA tmp[j] = 0. ;
-        DLOOP tmp[j] += trans[j][k]*ucon[k] ;
-        DLOOPA ucon[j] = tmp[j] ;
-	/* now we've got ucon in KS coords */
+  /* transform ucon */
+  DLOOPA tmp[j] = 0. ;
+  DLOOP tmp[j] += trans[j][k]*ucon[k] ;
+  DLOOPA ucon[j] = tmp[j] ;
+  /* now we've got ucon in KS coords */
 
-	/* transform to KS' coords */
-	ucon[1] *= (1./(r - R0)) ;
-        ucon[2] *= (1./(M_PI + (1. - hslope)*M_PI*cos(2.*M_PI*X[2]))) ;
+  /* transform to KS' coords */
+  /* dr^\mu/dx^\nu jacobian, where x^\nu are internal coords */
+  dxdxp_func(X, dxdxp);
+  /* dx^\mu/dr^\nu jacobian */
+  invert_matrix(dxdxp, dxpdx);
+  
+  for(i=0;i<NDIM;i++) {
+    uconp[i] = 0;
+    for(j=0;j<NDIM;j++){
+      uconp[i] += dxpdx[i][j]*ucon[j];
+    }
+  }
+  //old way of doing things for Gammie coords
+  //ucon[1] *= (1./(r - R0)) ;
+  //ucon[2] *= (1./(M_PI + (1. - hslope)*M_PI*cos(2.*M_PI*X[2]))) ;
+  //ucon[3] *= 1.; //!!!ATCH: no need to transform since will use phi = X[3]
 
-	/* now solve for v-- we can use the same u^t because
-	 * it didn't change under KS -> KS' */
-	get_geometry(ii,jj,CENT,&geom) ;
-	alpha = 1./sqrt(-geom.gcon[0][0]) ;
-	gamma = ucon[TT]*alpha ;
+  get_geometry(ii, jj, kk, CENT, &geom);
+  
+  /* now solve for relative 4-velocity that is used internally in the code:
+   * we can use the same u^t because it didn't change under KS -> KS' */
+  ucon_to_utcon(uconp,&geom,utconp);
+  
+  pr[U1] = utconp[1] ;
+  pr[U2] = utconp[2] ;
+  pr[U3] = utconp[3] ;
 
-	beta[1] = alpha*alpha*geom.gcon[0][1] ;
-	beta[2] = alpha*alpha*geom.gcon[0][2] ;
-	beta[3] = alpha*alpha*geom.gcon[0][3] ;
-
-        pr[U1] = ucon[1] + beta[1]*gamma/alpha ;
-        pr[U2] = ucon[2] + beta[2]*gamma/alpha ;
-        pr[U3] = ucon[3] + beta[3]*gamma/alpha ;
-
-        /* done! */
+  /* done! */
 }
+
 
 double lfish_calc(double r)
 {

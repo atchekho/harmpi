@@ -1,3 +1,4 @@
+//Modified by Alexander Tchekhovskoy: MPI+3D
 /***********************************************************************************
     Copyright 2006 Charles F. Gammie, Jonathan C. McKinney, Scott C. Noble, 
                    Gabor Toth, and Luca Del Zanna
@@ -266,7 +267,6 @@ int LU_decompose( double A[][NDIM], int permute[] )
 }
 
 
-/************************************************************************
 /************************************************************************
 
    LU_substitution():

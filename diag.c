@@ -1,3 +1,4 @@
+//Modified by Alexander Tchekhovskoy: MPI+3D
 /***********************************************************************************
     Copyright 2006 Charles F. Gammie, Jonathan C. McKinney, Scott C. Noble, 
                    Gabor Toth, and Luca Del Zanna
@@ -46,144 +47,215 @@
 
 /* all diagnostics subroutine */
 
+void append_rank(char *name)
+{
+  char suff[MAXLEN];
+  //file suffixes that will be different by MPI rank
+  sprintf(suff, "_%04d", mpi_rank);
+  strcat(name,suff);
+}
+
 void diag(call_code)
 int call_code ;
 {
-	char dfnam[100],ifnam[100] ;
-	int i,j,k ;
-	FILE *dump_file;
-	double U[NPR],pp,e,rmed,divb,divbmax,e_fin,m_fin,gamma ;
-	struct of_geom geom ;
-	struct of_state q ;
-	int imax,jmax ;
+  int di, dj, dk;
+  char efnam[MAXLEN], dfnam[MAXLEN],ifnam[MAXLEN] ;
+  int i,j,k,m ;
+  FILE *dump_file;
+  double U[NPR],pp,e,rmed,divb,divbmax,divbmax_global,e_fin,m_fin,gamma ;
+  struct of_geom geom ;
+  struct of_state q ;
+  int imax,jmax,kmax ;
+  int istart,istop,jstart,jstop,kstart,kstop;
+  
+  static double e_init,m_init ;
+  static FILE *ener_file = NULL;
 
-	static double e_init,m_init ;
-	static FILE *ener_file ;
+#if(DOENER)
+  if(call_code==INIT_OUT || NULL == ener_file) {
+    /* set things up */
+    strcpy(efnam, "ener.out");
+    append_rank(efnam);
+    ener_file = fopen(efnam,"a") ;
+    if(ener_file==NULL) {
+      fprintf(stderr,"error opening energy output file, %s\n", efnam) ;
+      exit(1) ;
+    }
+  }
+#endif
+  
+  /* calculate conserved quantities */
+  if(call_code==INIT_OUT ||
+     call_code==LOG_OUT ||
+     call_code==DIVB_OUT ||
+     (call_code==FINAL_OUT &&
+     !failed)) {
+    pp = 0. ;
+    e = 0. ;
+    rmed = 0. ;
+    divbmax = 0. ;
+    imax = 0 ;
+    jmax = 0 ;
+    kmax = 0;
+    di = (N1>1);
+    dj = (N2>1);
+    dk = (N3>1);
+    //all cells not immediately adjacent to physical boundaries
+    istart = is_physical_bc(1, 0);
+    istop  = N1 - 1 - is_physical_bc(1, 1);
+    jstart = 0*is_physical_bc(2, 0);
+    jstop  = N2 - 0*is_physical_bc(2, 1);
+    kstart = 0*is_physical_bc(3, 0);
+    kstop  = N3 - 0*is_physical_bc(3, 1);
+    ZSLOOP(istart,istop,jstart,jstop,kstart,kstop) {
+      get_geometry(i,j,k,CENT,&geom) ;
+      get_state(p[i][j][k],&geom,&q) ;
+      primtoU(p[i][j][k],&q,&geom,U) ;
+      
+      rmed += U[RHO]*dV ;
+      pp += U[U3]*dV ;
+      e += U[UU]*dV ;
 
-	if(call_code==INIT_OUT) {
-		/* set things up */
-		ener_file = fopen("ener.out","a") ;
-		if(ener_file==NULL) {
-			fprintf(stderr,"error opening energy output file\n") ;
-			exit(1) ;
-		}
-	}
+      /* flux-ct defn */
+      divb = fabs(
+#if(N1>1)
+                  0.25*(
+                        + p[i  ][j   ][k   ][B1]*gdet[i  ][j   ][k   ][CENT]
+                        + p[i  ][j   ][k-dk][B1]*gdet[i  ][j   ][k-dk][CENT]
+                        + p[i  ][j-dj][k   ][B1]*gdet[i  ][j-dj][k   ][CENT]
+                        + p[i  ][j-dj][k-dk][B1]*gdet[i  ][j-dj][k-dk][CENT]
+                        - p[i-1][j   ][k   ][B1]*gdet[i-1][j   ][k   ][CENT]
+                        - p[i-1][j   ][k-dk][B1]*gdet[i-1][j   ][k-dk][CENT]
+                        - p[i-1][j-dj][k   ][B1]*gdet[i-1][j-dj][k   ][CENT]
+                        - p[i-1][j-dj][k-dk][B1]*gdet[i-1][j-dj][k-dk][CENT]
+                        )/dx[1]
+#endif
+#if(N2>1)
+                 +0.25*(
+                        + p[i   ][j  ][k   ][B2]*gdet[i   ][j  ][k   ][CENT]
+                        + p[i   ][j  ][k-dk][B2]*gdet[i   ][j  ][k-dk][CENT]
+                        + p[i-di][j  ][k   ][B2]*gdet[i-di][j  ][k   ][CENT]
+                        + p[i-di][j  ][k-dk][B2]*gdet[i-di][j  ][k-dk][CENT]
+                        - p[i   ][j-1][k   ][B2]*gdet[i   ][j-1][k   ][CENT]
+                        - p[i   ][j-1][k-dk][B2]*gdet[i   ][j-1][k-dk][CENT]
+                        - p[i-di][j-1][k   ][B2]*gdet[i-di][j-1][k   ][CENT]
+                        - p[i-di][j-1][k-dk][B2]*gdet[i-di][j-1][k-dk][CENT]
+                       )/dx[2]
+#endif
+#if(N3>1)
+                 +0.25*(
+                        + p[i   ][j   ][k  ][B3]*gdet[i   ][j   ][k  ][CENT]
+                        + p[i-di][j   ][k  ][B3]*gdet[i-di][j   ][k  ][CENT]
+                        + p[i   ][j-dj][k  ][B3]*gdet[i   ][j-dj][k  ][CENT]
+                        + p[i-di][j-dj][k  ][B3]*gdet[i-di][j-dj][k  ][CENT]
+                        - p[i   ][j   ][k-1][B3]*gdet[i   ][j   ][k-1][CENT]
+                        - p[i-di][j   ][k-1][B3]*gdet[i-di][j   ][k-1][CENT]
+                        - p[i   ][j-dj][k-1][B3]*gdet[i   ][j-dj][k-1][CENT]
+                        - p[i-di][j-dj][k-1][B3]*gdet[i-di][j-dj][k-1][CENT]
+                   )/dx[3]
+#endif
+                  );
+      if(divb > divbmax) {
+        imax = i+mpi_startn[1] ;
+        jmax = j+mpi_startn[2] ;
+        kmax = k+mpi_startn[3] ;
+        divbmax = divb ;
+      }
+    }
+  }
+  
+#ifdef MPI
+  //exchange the info between the MPI processes to get the true max
+  MPI_Allreduce(&divbmax,&divbmax_global,1,MPI_DOUBLE,MPI_MAX,MPI_COMM_WORLD);
+  MPI_Allreduce(MPI_IN_PLACE,&e,1,MPI_DOUBLE,MPI_SUM,MPI_COMM_WORLD);
+  MPI_Allreduce(MPI_IN_PLACE,&rmed,1,MPI_DOUBLE,MPI_SUM,MPI_COMM_WORLD);
+  MPI_Allreduce(MPI_IN_PLACE,&pp,1,MPI_DOUBLE,MPI_SUM,MPI_COMM_WORLD);
+#else
+  divbmax_global = divbmax;
+#endif
+  
+  if(call_code == INIT_OUT) {
+    e_init = e ;
+    m_init = rmed ;
+  }
+  
+  if(MASTER == mpi_rank && call_code == FINAL_OUT) {
+    e_fin = e ;
+    m_fin = rmed ;
+    fprintf(stderr,"\n\nEnergy: ini,fin,del: %g %g %g\n",
+            e_init,e_fin,(e_fin-e_init)/e_init) ;
+    fprintf(stderr,"mass: ini,fin,del: %g %g %g\n",
+            m_init,m_fin,(m_fin-m_init)/m_init) ;
+  }
+  
+  if(call_code == INIT_OUT ||
+     call_code == LOG_OUT ||
+     call_code == FINAL_OUT ||
+     call_code == DIVB_OUT) {
+    if (divbmax==divbmax_global) {
+      fprintf(stderr,"LOG      t=%g \t divbmax: %d %d %d %g\n",
+            t,imax,jmax,kmax,divbmax) ;
+    }
+  }
 
-	/* calculate conserved quantities */
-	if(call_code==INIT_OUT || 
-	   call_code==LOG_OUT ||
-	   call_code==FINAL_OUT &&
-	   !failed) {
-		pp = 0. ;
-		e = 0. ;
-		rmed = 0. ;
-		divbmax = 0. ;
-		imax = 0 ; 
-		jmax = 0 ;
-		ZSLOOP(0,N1-1,0,N2-1) {
-			get_geometry(i,j,CENT,&geom) ;
-			get_state(p[i][j],&geom,&q) ;
-			primtoU(p[i][j],&q,&geom,U) ;
+#if(DOENER)
+  if(call_code == INIT_OUT ||
+     call_code == LOG_OUT ||
+     call_code == FINAL_OUT) {
+    fprintf(ener_file,"%10.5g %10.5g %10.5g %10.5g %15.8g %15.8g ",
+            t,rmed,pp,e,p[N1/2][N2/2][N3/2][UU]*pow(p[N1/2][N2/2][N3/2][RHO],-gam),
+            p[N1/2][N2/2][N3/2][UU]) ;
+    fprintf(ener_file,"%15.8g %15.8g %15.8g ",mdot,edot,ldot) ;
+    fprintf(ener_file,"\n") ;
+    fflush(ener_file) ;
+  }
+#endif
+  
+  /* gdump only at code start */
+  if(call_code == INIT_OUT) {
+    /* make grid dump file */
+    
+    gdump(0) ;
+    gdump2(0) ;
+  }
+  
+  /* dump at regular intervals */
+  if(call_code == INIT_OUT ||
+     call_code == DUMP_OUT ||
+     call_code == FINAL_OUT) {
+    /* make regular dump file */
+    dump(dump_cnt,0) ;
+    dump_cnt++ ;
+  }
 
-			rmed += U[RHO]*dV ;
-			pp += U[U3]*dV ;
-			e += U[UU]*dV ;
+  /* dump at regular intervals */
+  if(call_code == DIVB_OUT) {
+    /* make regular dump file */
+    dump(-dump_cnt,0) ;
+    //dump_cnt++ ;
+  }
+  
+  /* rdump at regular intervals */
+  if(call_code == INIT_OUT ||
+     call_code == RDUMP_OUT ||
+     call_code == FINAL_OUT) {
+    /* make rdump file */
+    //increment rdump count *before* writing the restart dump file
+    //so that get the correct counter value if restart from the file
+    rdump_cnt++ ;
+    restart_write(rdump_cnt-1);
+    
+  }
 
-			/* flux-ct defn */
-			divb = fabs( 0.5*(
-				p[i][j][B1]*gdet[i][j][CENT] 
-				+ p[i][j-1][B1]*gdet[i][j-1][CENT]
-				- p[i-1][j][B1]*gdet[i-1][j][CENT] 
-				- p[i-1][j-1][B1]*gdet[i-1][j-1][CENT]
-				)/dx[1] +
-				0.5*(
-				p[i][j][B2]*gdet[i][j][CENT] 
-				+ p[i-1][j][B2]*gdet[i-1][j][CENT]
-				- p[i][j-1][B2]*gdet[i][j-1][CENT] 
-				- p[i-1][j-1][B2]*gdet[i-1][j-1][CENT]
-				)/dx[2]) ;
-
-			if(divb > divbmax && i > 0 && j > 0) {
-				imax = i ;
-				jmax = j ;
-				divbmax = divb ;
-			}
-		}
-	}
-
-	if(call_code == INIT_OUT) {
-		e_init = e ;
-		m_init = rmed ;
-	}
-
-	if(call_code == FINAL_OUT) {
-		e_fin = e ;
-		m_fin = rmed ;
-		fprintf(stderr,"\n\nEnergy: ini,fin,del: %g %g %g\n",
-			e_init,e_fin,(e_fin-e_init)/e_init) ;
-		fprintf(stderr,"mass: ini,fin,del: %g %g %g\n",
-			m_init,m_fin,(m_fin-m_init)/m_init) ;
-	}
-
-	if(call_code == INIT_OUT || 
-	   call_code == LOG_OUT ||
-	   call_code == FINAL_OUT) {
-		fprintf(stderr,"LOG      t=%g \t divbmax: %d %d %g\n",
-				t,imax,jmax,divbmax) ;
-		fprintf(ener_file,"%10.5g %10.5g %10.5g %10.5g %15.8g %15.8g ",
-			t,rmed,pp,e,p[N1/2][N2/2][UU]*pow(p[N1/2][N2/2][RHO],-gam),
-			p[N1/2][N2/2][UU]) ;
-		fprintf(ener_file,"%15.8g %15.8g %15.8g ",mdot,edot,ldot) ;
-		fprintf(ener_file,"\n") ;
-		fflush(ener_file) ;
-	}
-
-
-	/* gdump only at code start */
-	if(call_code == INIT_OUT) {
-		/* make grid dump file */
-		sprintf(dfnam,"dumps/gdump") ;
-		fprintf(stderr,"GDUMP    file=%s\n",dfnam) ;
-		dump_file = fopen(dfnam,"w") ;
-
-		if(dump_file==NULL) {
-			fprintf(stderr,"error opening grid dump file\n") ;
-			exit(2) ;
-		}
-
-		gdump(dump_file) ;
-		fclose(dump_file) ;
-	}
-
-	/* dump at regular intervals */
-	if(call_code == INIT_OUT || 
-	   call_code == DUMP_OUT ||
-	   call_code == FINAL_OUT) {
-		/* make regular dump file */
-		sprintf(dfnam,"dumps/dump%03d",dump_cnt) ;
-		fprintf(stderr,"DUMP     file=%s\n",dfnam) ;
-		dump_file = fopen(dfnam,"w") ;
-
-		if(dump_file==NULL) {
-			fprintf(stderr,"error opening dump file\n") ;
-			exit(2) ;
-		}
-
-		dump(dump_file) ;
-		fclose(dump_file) ;
-
-		dump_cnt++ ;
-	}
-	
-	/* image dump at regular intervals */
-	if(call_code == IMAGE_OUT || 
-	   call_code == INIT_OUT ||
-	   call_code == FINAL_OUT) {
-
-		image_all( image_cnt );
-
-		image_cnt++ ;
-	}
+  /* image dump at regular intervals */
+  if(call_code == IMAGE_OUT ||
+     call_code == INIT_OUT ||
+     call_code == FINAL_OUT) {
+    
+    fdump( image_cnt );
+    
+    image_cnt++ ;
+  }
 }
 
 
@@ -195,14 +267,17 @@ void fail(int fail_type)
 
 	failed = 1 ;
 
-	fprintf(stderr,"\n\nfail: %d %d %d\n",icurr,jcurr,fail_type) ;
+	fprintf(stderr,"\n\nfail: %d %d %d %d\n",icurr,jcurr,kcurr,fail_type) ;
 
-	area_map(icurr,jcurr,p) ;
+	area_map(icurr,jcurr,kcurr,p) ;
 	
 	fprintf(stderr,"fail\n") ;
 
 	diag(FINAL_OUT) ;
 
+#ifdef MPI
+        MPI_Finalize();
+#endif
 	/* for diagnostic purposes */
 	exit(0) ;
 }
@@ -210,30 +285,30 @@ void fail(int fail_type)
 
 
 /* map out region around failure point */
-void area_map(int i, int j, double prim[][N2+4][NPR])
+void area_map(int i, int j, int k, double prim[][N2M][N3M][NPR])
 {
-	int k ;
+	int m ;
 
 	fprintf(stderr,"area map\n") ;
 
 	PLOOP {
-		fprintf(stderr,"variable %d \n",k) ;
+		fprintf(stderr,"variable %d \n",m) ;
 		fprintf(stderr,"i = \t %12d %12d %12d\n",i-1,i,i+1) ;
 		fprintf(stderr,"j = %d \t %12.5g %12.5g %12.5g\n",
 				j+1,
-				prim[i-1][j+1][k],
-				prim[i][j+1][k],
-				prim[i+1][j+1][k]) ;
+				prim[i-1][j+1][k][m],
+				prim[i][j+1][k][m],
+				prim[i+1][j+1][k][m]) ;
 		fprintf(stderr,"j = %d \t %12.5g %12.5g %12.5g\n",
 				j,
-				prim[i-1][j][k],
-				prim[i][j][k],
-				prim[i+1][j][k]) ;
+				prim[i-1][j][k][m],
+				prim[i][j][k][m],
+				prim[i+1][j][k][m]) ;
 		fprintf(stderr,"j = %d \t %12.5g %12.5g %12.5g\n",
 				j-1,
-				prim[i-1][j-1][k],
-				prim[i][j-1][k],
-				prim[i+1][j-1][k]) ;
+				prim[i-1][j-1][k][m],
+				prim[i][j-1][k][m],
+				prim[i+1][j-1][k][m]) ;
 	}
 
 	/* print out other diagnostics here */
@@ -243,15 +318,22 @@ void area_map(int i, int j, double prim[][N2+4][NPR])
 /* evaluate fluxed based diagnostics; put results in
  * global variables */
 
-void diag_flux(double F1[][N2+4][NPR], double F2[][N2+4][NPR])
+void diag_flux(double F1[][N2M][N3M][NPR], double F2[][N2M][N3M][NPR])
 {
-	int j ;
+	int j,k ;
 
         mdot = edot = ldot = 0. ;
+//#pragma omp parallel for schedule(static,MY_MAX(N2*N3/nthreads,1)) collapse(2) \
+//    default(none) \
+//    shared(F1,F2,dx,nthreads) \
+//    private(j,k) \
+//    reduction(+:mdot) reduction(-:edot) reduction(+:ldot)
         for(j=0;j<N2;j++) {
-                mdot += F1[0][j][RHO]*2.*M_PI*dx[2] ;
-                edot -= (F1[0][j][UU] - F1[0][j][RHO])*2.*M_PI*dx[2] ;
-                ldot += F1[0][j][U3] *2.*M_PI*dx[2] ;
+          for(k=0;k<N3;k++) {
+                mdot += F1[0][j][k][RHO]*dx[2]*dx[3] ;
+                edot -= (F1[0][j][k][UU] - F1[0][j][k][RHO])*dx[2]*dx[3] ;
+                ldot += F1[0][j][k][U3] *dx[2]*dx[3] ;
+          }
         }
 }
 

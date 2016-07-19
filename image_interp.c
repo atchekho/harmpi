@@ -1,3 +1,4 @@
+//Modified by Alexander Tchekhovskoy: MPI+3D
 /***********************************************************************************
     Copyright 2006 Charles F. Gammie, Jonathan C. McKinney, Scott C. Noble, 
                    Gabor Toth, and Luca Del Zanna
@@ -52,7 +53,7 @@
 int oN1,oN2,nN1,nN2 ;
 double dx1,dx2,rin,rout,dx,dy,hslope ;
 
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
 	char **oldimage,**newimage,**cmatrix(int a, int b, int c, int d)  ;
 	int i,j,iold,jold,ioldp,joldp ;
@@ -165,6 +166,7 @@ main(int argc, char *argv[])
 		}
 		fwrite(&newimage[i][j], sizeof(unsigned char), 1, stdout) ;
 	}
+        return(0);
 }
 
 void new_coord(int i,int j,double *r,double *th)

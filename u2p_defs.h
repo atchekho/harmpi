@@ -50,11 +50,10 @@
 #include <float.h>
 #include <complex.h>
 
+#include "decs.h"
+
  /* your choice of floating-point data type */
 #define FTYPE double    
-
-#define NPR 8
-#define NDIM 4
 
 /* Adiabatic index used for the state equation */
 #define GAMMA	(gam)  
@@ -108,6 +107,7 @@
 #define BCON2	6
 #define BCON3	7
 
+
 /* for conserved variables */
 #define QCOV0	1
 #define QCOV1	2
@@ -117,8 +117,11 @@
 
 #define MYMAX(a,b) ( ((a) > (b)) ? (a) : (b) )
 
-#define dot(a,b) (a[0]*b[0] + a[1]*b[1] + a[2]*b[2] + a[3]*b[3])
+//#define dot(a,b) (a[0]*b[0] + a[1]*b[1] + a[2]*b[2] + a[3]*b[3])
 
-#define delta(i,j) (((i) == (j)) ? 1. : 0.)
+//#define delta(i,j) (((i) == (j)) ? 1. : 0.)
+
+#define finite(x) isfinite(x)
 
 extern double gam;
+extern double mrat;

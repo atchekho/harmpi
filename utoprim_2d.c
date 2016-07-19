@@ -1,3 +1,4 @@
+//Modified by Alexander Tchekhovskoy: MPI+3D
 /***********************************************************************************
     Copyright 2006 Charles F. Gammie, Jonathan C. McKinney, Scott C. Noble, 
                    Gabor Toth, and Luca Del Zanna
@@ -69,8 +70,8 @@ utoprim_2d.c:
 
 /* these variables need to be shared between the functions
    Utoprim_1D, residual, and utsq */
-FTYPE Bsq,QdotBsq,Qtsq,Qdotn,D ;
-
+static FTYPE Bsq,QdotBsq,Qtsq,Qdotn,D ;
+#pragma omp threadprivate(Bsq,QdotBsq,Qtsq,Qdotn,D)
 
 // Declarations: 
 static FTYPE vsq_calc(FTYPE W);
@@ -123,14 +124,17 @@ int Utoprim_2d(FTYPE U[NPR], FTYPE gcov[NDIM][NDIM], FTYPE gcon[NDIM][NDIM],
   FTYPE U_tmp[NPR], U_tmp2[NPR], prim_tmp[NPR];
   int i, j, ret; 
   FTYPE alpha;
+    double dummy;
 
-
-  if( U[0] <= 0. ) { 
-    return(-100);
-  }
 
   /* First update the primitive B-fields */
   for(i = BCON1; i <= BCON3; i++) prim[i] = U[i] / gdet ;
+
+  if( U[0] <= 0. ) {
+    return(-100);
+    //  fprintf(stderr,"failure at %d %d\n", i,j);
+  }
+
 
   /* Set the geometry variables: */
   alpha = 1.0/sqrt(-gcon[0][0]);
@@ -138,7 +142,12 @@ int Utoprim_2d(FTYPE U[NPR], FTYPE gcov[NDIM][NDIM], FTYPE gcon[NDIM][NDIM],
   /* Transform the CONSERVED variables into the new system */
   U_tmp[RHO] = alpha * U[RHO] / gdet;
   U_tmp[UU]  = alpha * (U[UU] - U[RHO])  / gdet ;
-  for( i = UTCON1; i <= UTCON3; i++ ) {
+    
+
+
+    
+    
+    for( i = UTCON1; i <= UTCON3; i++ ) {
     U_tmp[i] = alpha * U[i] / gdet ;
   }
   for( i = BCON1; i <= BCON3; i++ ) {
@@ -154,14 +163,17 @@ int Utoprim_2d(FTYPE U[NPR], FTYPE gcov[NDIM][NDIM], FTYPE gcon[NDIM][NDIM],
   }
 
   ret = Utoprim_new_body(U_tmp, gcov, gcon, gdet, prim_tmp);
+    
 
-  /* Transform new primitive variables back if there was no problem : */ 
+
+  /* Transform new primitive variables back if there was no problem : */
   if( ret == 0 ) {
     for( i = 0; i < BCON1; i++ ) {
       prim[i] = prim_tmp[i];
     }
   }
 
+  
   return( ret ) ;
 
 }
@@ -214,8 +226,12 @@ static int Utoprim_new_body(FTYPE U[NPR], FTYPE gcov[NDIM][NDIM],
   FTYPE x_2d[NEWT_DIM];
   FTYPE QdotB,Bcon[NDIM],Bcov[NDIM],Qcov[NDIM],Qcon[NDIM],ncov[NDIM],ncon[NDIM],Qsq,Qtcon[NDIM];
   FTYPE rho0,u,p,w,gammasq,gamma,gtmp,W_last,W,utsq,vsq,tmpdiff ;
-  int i,j, n, retval, i_increase ;
+    FTYPE alpha, ucovt, utsqp1, aco, bco, cco, pevar, agame, the;
 
+
+  int i,j, n, retval, i_increase ;
+    double dummy;
+    
 
 
 
@@ -267,6 +283,7 @@ static int Utoprim_new_body(FTYPE U[NPR], FTYPE gcov[NDIM][NDIM],
   if(utsq < 0. || utsq > UTSQ_TOO_BIG) {
     retval = 2;
     return(retval) ;
+    //  fprintf(stderr,"failure, utsq_too_big at %d %d\n", i,j);
   }
 
   gammasq = 1. + utsq ;
@@ -301,11 +318,14 @@ static int Utoprim_new_body(FTYPE U[NPR], FTYPE gcov[NDIM][NDIM],
 	
   /* Problem with solver, so return denoting error before doing anything further */
   if( (retval != 0) || (W == FAIL_VAL) ) {
+    //  fprintf(stderr,"failure, in solver at %d %d\n", i,j);
     retval = retval*100+1;
     return(retval);
+
   }
   else{
     if(W <= 0. || W > W_TOO_BIG) {
+      //  fprintf(stderr,"failure, W_too_big at %d %d\n", i,j);
       retval = 3;
       return(retval) ;
     }
@@ -332,13 +352,14 @@ static int Utoprim_new_body(FTYPE U[NPR], FTYPE gcov[NDIM][NDIM],
     retval = 5;
     return(retval) ;
   }
-
-  prim[RHO] = rho0 ;
-  prim[UU] = u ;
-
-
+    
+    prim[RHO] = rho0 ;
+    prim[UU] = u ;
+  
   for(i=1;i<4;i++)  Qtcon[i] = Qcon[i] + ncon[i] * Qdotn;
   for(i=1;i<4;i++) prim[UTCON1+i-1] = gamma/(W+Bsq) * ( Qtcon[i] + QdotB*Bcon[i]/W ) ;
+    
+
 	
   /* set field components */
   for(i = BCON1; i <= BCON3; i++) prim[i] = U[i] ;
@@ -472,6 +493,12 @@ static int general_newton_raphson( FTYPE x[], int n,
     /* Calculate the convergence criterion */
     /****************************************/
     errx  = (x[0]==0.) ?  fabs(dx[0]) : fabs(dx[0]/x[0]);
+    //if 2D method, make sure both W and vsq converge
+    //this is important in non-relativistic flows where
+    //vsq could be << 1
+    if( n > 1 ) {
+      errx  += (x[1]==0.) ?  fabs(dx[1]) : fabs(dx[1]/x[1]);
+    }
 
 
     /****************************************/
@@ -503,12 +530,14 @@ static int general_newton_raphson( FTYPE x[], int n,
 
     /*  Check for bad untrapped divergences : */
   if( (finite(f)==0) ||  (finite(df)==0) ) {
+    //   fprintf(stderr,"failure, untrapped divergences, %g %g %g %g \n", f, df, x, dx);
     return(2);
   }
 
 
   if( fabs(errx) > MIN_NEWT_TOL){
     return(1);
+    //  fprintf(stderr,"failure, tolerance not reached \n");
   } 
   if( (fabs(errx) <= MIN_NEWT_TOL) && (fabs(errx) > NEWT_TOL) ){
     return(0);
@@ -578,20 +607,20 @@ static void func_vsq(FTYPE x[], FTYPE dx[], FTYPE resid[],
   t2 = -0.5*Bsq+dPdvsq;
   t3 = Bsq+W;
   t4 = t3*t3;
-  t9 = 1/Wsq;
+  t9 = 1.0/Wsq;
   t11 = Qtsq-vsq*t4+QdotBsq*(Bsq+2.0*W)*t9;
   t16 = QdotBsq*t9;
   t18 = -Qdotn-0.5*Bsq*(1.0+vsq)+0.5*t16-W+p_tmp;
-  t21 = 1/t3;
-  t23 = 1/W;
+  t21 = 1.0/t3;
+  t23 = 1.0/W;
   t24 = t16*t23;
   t25 = -1.0+dPdW-t24;
   t35 = t25*t3+(Bsq-2.0*dPdvsq)*(QdotBsq+vsq*Wsq*W)*t9*t23;
-  t36 = 1/t35;
+  t36 = 1.0/t35;
   dx[0] = -(t2*t11+t4*t18)*t21*t36;
   t40 = (vsq+t24)*t3;
   dx[1] = -(-t25*t11-2.0*t40*t18)*t21*t36;
-  detJ = t3*t35;
+  //detJ = t3*t35;
   jac[0][0] = -2.0*t40;
   jac[0][1] = -t4;
   jac[1][0] = t25;

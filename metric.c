@@ -1,3 +1,4 @@
+//Modified by Alexander Tchekhovskoy: MPI+3D
 /***********************************************************************************
     Copyright 2006 Charles F. Gammie, Jonathan C. McKinney, Scott C. Noble, 
                    Gabor Toth, and Luca Del Zanna
@@ -59,26 +60,50 @@
            |CORN    FACE2        |
            ----------------------
 ***************************************************************************/
-void coord(int i, int j, int loc, double *X)
+void coord(int i, int j, int k, int loc, double *X)
 {
-        if(loc == FACE1) {
-                X[1] = startx[1] + i*dx[1] ;
-                X[2] = startx[2] + (j + 0.5)*dx[2] ;
-        }
-        else if(loc == FACE2) {
-                X[1] = startx[1] + (i + 0.5)*dx[1] ;
-                X[2] = startx[2] + j*dx[2] ;
-        }
-        else if(loc == CENT) {
-                X[1] = startx[1] + (i + 0.5)*dx[1] ;
-                X[2] = startx[2] + (j + 0.5)*dx[2] ;
-        }
-        else {
-                X[1] = startx[1] + i*dx[1] ;
-                X[2] = startx[2] + j*dx[2] ;
-        }
+  if(loc == FACE1) {
+    X[1] = startx[1] + (i+mpi_startn[1])*dx[1] ;
+    X[2] = startx[2] + (j+mpi_startn[2] + 0.5)*dx[2] ;
+    X[3] = startx[3] + (k+mpi_startn[3] + 0.5)*dx[3] ;
+  }
+  else if(loc == FACE2) {
+    X[1] = startx[1] + (i+mpi_startn[1] + 0.5)*dx[1] ;
+    X[2] = startx[2] + (j+mpi_startn[2])*dx[2] ;
+    X[3] = startx[3] + (k+mpi_startn[3] + 0.5)*dx[3] ;
+  }
+  else if(loc == FACE3) {
+    X[1] = startx[1] + (i+mpi_startn[1] + 0.5)*dx[1] ;
+    X[2] = startx[2] + (j+mpi_startn[2] + 0.5)*dx[2] ;
+    X[3] = startx[3] + (k+mpi_startn[3])*dx[3] ;
+  }
+  else if(loc == EDGE1) {
+    X[1] = startx[1] + (i+mpi_startn[1] + 0.5)*dx[1] ;
+    X[2] = startx[2] + (j+mpi_startn[2])*dx[2] ;
+    X[3] = startx[3] + (k+mpi_startn[3])*dx[3] ;
+  }
+  else if(loc == EDGE2) {
+    X[1] = startx[1] + (i+mpi_startn[1])*dx[1] ;
+    X[2] = startx[2] + (j+mpi_startn[2] + 0.5)*dx[2] ;
+    X[3] = startx[3] + (k+mpi_startn[3])*dx[3] ;
+  }
+  else if(loc == EDGE3) {
+    X[1] = startx[1] + (i+mpi_startn[1])*dx[1] ;
+    X[2] = startx[2] + (j+mpi_startn[2])*dx[2] ;
+    X[3] = startx[3] + (k+mpi_startn[3] + 0.5)*dx[3] ;
+  }
+  else if(loc == CENT) {
+    X[1] = startx[1] + (i+mpi_startn[1] + 0.5)*dx[1] ;
+    X[2] = startx[2] + (j+mpi_startn[2] + 0.5)*dx[2] ;
+    X[3] = startx[3] + (k+mpi_startn[3] + 0.5)*dx[3] ;
+  }
+  else {
+    X[1] = startx[1] + (i+mpi_startn[1])*dx[1] ;
+    X[2] = startx[2] + (j+mpi_startn[2])*dx[2] ;
+    X[3] = startx[3] + (k+mpi_startn[3])*dx[3] ;
+  }
 
-        return ;
+  return ;
 }
 
 /* assumes gcov has been set first; returns determinant */
@@ -159,6 +184,36 @@ void conn_func(double *X, struct of_geom *geom, double conn[][NDIM][NDIM])
 	/* done! */
 }
 
+/* NOTE: parameter hides global variable */
+void dxdxp_func(double *X, double dxdxp[][NDIM])
+{
+  int i,j,k,l ;
+  double Xh[NDIM],Xl[NDIM] ;
+  double Vh[NDIM],Vl[NDIM] ;
+
+  if(BL){
+    for(k=0;k<NDIM;k++) {
+      for(l=0;l<NDIM;l++) Xh[l] = X[l] ;
+      for(l=0;l<NDIM;l++) Xl[l] = X[l] ;
+      Xh[k] += DELTA ;
+      Xl[k] -= DELTA ;
+
+      bl_coord_vec(Xh,Vh) ;
+      bl_coord_vec(Xl,Vl) ;
+      
+      for(j=0;j<NDIM;j++)
+        dxdxp[j][k] = (Vh[j]-Vl[j])/(Xh[k] - Xl[k]) ;
+    }
+  }
+  else{
+    for(i=0;i<NDIM;i++) {
+      for(j=0;j<NDIM;j++) {
+        dxdxp[i][j] = delta(i,j);
+      }
+    }
+  }
+}
+
 /* Lowers a contravariant rank-1 tensor to a covariant one */
 void lower(double *ucon, struct of_geom *geom, double *ucov)
 {
@@ -208,20 +263,43 @@ void raise(double *ucov, struct of_geom *geom, double *ucon)
 }
 
 /* load local geometry into structure geom */
-void get_geometry(int ii, int jj, int kk, struct of_geom *geom)
+void get_geometry(int ii, int jj, int kk, int loc, struct of_geom *geom)
 {
 	int j,k ;
 
 	//-new DLOOP geom->gcov[j][k] = gcov[ii][jj][kk][j][k] ;
 	//-new DLOOP geom->gcon[j][k] = gcon[ii][jj][kk][j][k] ;
 	for(j=0;j<=NDIM*NDIM-1;j++){
-	  geom->gcon[0][j] = gcon[ii][jj][kk][0][j];
-	  geom->gcov[0][j] = gcov[ii][jj][kk][0][j];
+	  geom->gcon[0][j] = gcon[ii][jj][kk][loc][0][j];
+	  geom->gcov[0][j] = gcov[ii][jj][kk][loc][0][j];
 	}
-	geom->g = gdet[ii][jj][kk] ;
+	geom->g = gdet[ii][jj][kk][loc] ;
 	icurr = ii ;
 	jcurr = jj ;
-	pcurr = kk ;
+        kcurr = kk ;
+	pcurr = loc ;
+}
+
+/* load coordinates into V array */
+void get_phys_coord_vec(int ii, int jj, int kk, double *V)
+{
+  int j ;
+  
+  SLOOPA V[j] = phys_coords[j][ii][jj][kk];
+}
+
+/* load r-coordinate value into *r */
+void get_phys_coord_r(int ii, int jj, int kk, double *r)
+{
+  *r = phys_coords[1][ii][jj][kk];
+}
+
+/* load coordinates value into r, theta, phi */
+void get_phys_coord(int ii, int jj, int kk, double *r, double *theta, double *phi)
+{
+  *r     = phys_coords[1][ii][jj][kk];
+  *theta = phys_coords[2][ii][jj][kk];
+  *phi   = phys_coords[3][ii][jj][kk];
 }
 
 #undef DELTA
@@ -237,22 +315,22 @@ double mink(int i, int j)
 }
 
 /* Boyer-Lindquist ("bl") metric functions */
-void blgset(int i, int j, struct of_geom *geom)
+void blgset(int i, int j, int k, struct of_geom *geom)
 {
-	double r,th,X[NDIM] ;
+	double r,th,phi,X[NDIM] ;
 
-	coord(i,j,CENT,X) ;
-	bl_coord(X,&r,&th) ;
+	coord(i,j,k,CENT,X) ;
+	bl_coord(X,&r,&th,&phi) ;
 
 	if(th < 0) th *= -1. ;
 	if(th > M_PI) th = 2.*M_PI - th ;
 
-	geom->g = bl_gdet_func(r,th) ;
-	bl_gcov_func(r,th,geom->gcov) ;
-	bl_gcon_func(r,th,geom->gcon) ;
+	geom->g = bl_gdet_func(r,th,phi) ;
+	bl_gcov_func(r,th,phi,geom->gcov) ;
+	bl_gcon_func(r,th,phi,geom->gcon) ;
 }
 
-double bl_gdet_func(double r, double th)
+double bl_gdet_func(double r, double th, double phi)
 {
 	double a2,r2 ;
 
@@ -263,7 +341,7 @@ double bl_gdet_func(double r, double th)
 	) ;
 }
 
-void bl_gcov_func(double r, double th, double gcov[][NDIM])
+void bl_gcov_func(double r, double th, double phi, double gcov[][NDIM])
 {
 	int j,k ;
 	double sth,cth,s2,a2,r2,DD,mu ;
@@ -287,7 +365,7 @@ void bl_gcov_func(double r, double th, double gcov[][NDIM])
 
 }
 
-void bl_gcon_func(double r, double th, double gcon[][NDIM])
+void bl_gcon_func(double r, double th, double phi, double gcon[][NDIM])
 {
 	int j,k ;
 	double sth,cth,a2,r2,r3,DD,mu ;
@@ -297,7 +375,7 @@ void bl_gcon_func(double r, double th, double gcon[][NDIM])
 	sth = sin(th) ;
 	cth = cos(th) ;
 
-#if(COORDSINGFIX)
+#if(COORDSINGFIX && BL)
 	if (fabs(sth) < SINGSMALL) {
 	  if(sth>=0) sth=SINGSMALL;
 	  if(sth<0) sth=-SINGSMALL;
