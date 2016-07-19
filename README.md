@@ -1,7 +1,6 @@
 This code has been updated by Sasha Tchekhovskoy to 3D and MPI. Up to date
 [user guide](tutorial.md) and [exercises/homework](exercises.md) are also available.
 
-/***********************************************************************************
     Copyright 2006 Charles F. Gammie, Jonathan C. McKinney, Scott C. Noble, 
                    Gabor Toth, and Luca Del Zanna
 
@@ -43,7 +42,6 @@ This code has been updated by Sasha Tchekhovskoy to 3D and MPI. Up to date
     along with HARM; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-***********************************************************************************/
 
 
 INTRODUCTION:
