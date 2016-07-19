@@ -8,7 +8,9 @@ To run problems with HARM2D and to analyze the results, please follow this [tuto
 
 * Bondi accretion
 
-	Set `WHICHPROBLEM` to `BONDI_PROBLEM_1D` in [decs.h](decs.h). Plot the profiles of density at a few times in a simulation. Determine the position of the sonic surface. Note: a good total resolution is 256x1x1
+	Set `WHICHPROBLEM` to `BONDI_PROBLEM_1D` in [decs.h](decs.h). Note: a good total resolution is 256x1x1
+
+	* Plot the profiles of density at a few times in a simulation. Determine the position of the sonic surface. 
 
 ### 1D magnetized problems
 
@@ -16,9 +18,9 @@ To run problems with HARM2D and to analyze the results, please follow this [tuto
 
 	Set `WHICHPROBLEM` to `MONOPOLE_PROBLEM_1D` in [decs.h](decs.h). Note: a good total resolution is 768x1x1
 
-    ** Measure the ratio OmegaF/OmegaH. How does it compare with the standard value, 0.5?
-    ** What is the initial magnetization (near the black hole) of the plasma? Hint: look at the quantity $\sigma_0 = b^2/4\pi\rho c^2 =$ `bsq/rho` . Here $b^2/4\pi =$ `bsq` is the square of the fluid frame magnetic field and $\rho =$ `rho` is the fluid frame mass density.
-    ** Make a plot of Lorentz factor vs. radius, $\Gamma(r)$. Hint: $Gamma =$ `alpha * uu[0]`. What value does the Lorentz factor saturate at? How does it compare to the near-black hole magnetization, $\sigma_0$, of the magnetosphere determined above?
+    * Measure the ratio OmegaF/OmegaH. How does it compare with the standard value, 0.5?
+    * What is the initial magnetization (near the black hole) of the plasma? Hint: look at the quantity $\sigma_0 = b^2/4\pi\rho c^2 =$ `bsq/rho` . Here $b^2/4\pi =$ `bsq` is the square of the fluid frame magnetic field and $\rho =$ `rho` is the fluid frame mass density.
+    * Make a plot of Lorentz factor vs. radius, $\Gamma(r)$. Hint: $Gamma =$ `alpha * uu[0]`. What value does the Lorentz factor saturate at? How does it compare to the near-black hole magnetization, $\sigma_0$, of the magnetosphere determined above?
 
 ### 2D magnetized problems
 
