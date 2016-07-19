@@ -1,8 +1,8 @@
-# Exercises
+# Exercises for HARMPI by Sasha Tchekhovskoy
 
-## HARM2D: hydro problems
+## Hydro problems
 
-To run problems with HARM2D and to analyze the results, please follow this [tutorial](tutorial.md).
+To run problems with HARMPI and to analyze the results, please follow this [tutorial](tutorial.md).
 
 ### 1D hydro problems
 
