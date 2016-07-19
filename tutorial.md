@@ -161,7 +161,7 @@ Here `xmax = 100` and `ymax = 50` set the plotting range. You can omit these arg
 		rergo = 1+np.sqrt(1-(a*np.cos(h))**2)
 		plc(r-rergo,levels=(0,),xy=1,colors="red",linewidths=2)
 
-• Show black hole with black circle:
+* Show black hole with black circle:
 
 		#generate ellipse object
 		#import the Ellipse function
