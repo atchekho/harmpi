@@ -1,10 +1,10 @@
-	Copyright 2016 Alexander (Sasha) Tchekhovskoy
+Copyright 2016 Alexander (Sasha) Tchekhovskoy
 
-                        HARMPI version 1.0 (released July 19, 2016)
+	HARMPI version 1.0 (released July 19, 2016)
 
-	A parallel, 3D version of HARM2D. The code is parallelized using
-    MPI and is fully operational in 3D. Feel free to check out the  [user guide](tutorial.md) and 
-	[exercises/homework](exercises.md).
+A parallel, 3D version of HARM2D. The code is parallelized using
+MPI and is fully operational in 3D. Feel free to check out the  [user guide](tutorial.md) and 
+[exercises/homework](exercises.md).
 
 -------------------------------------------------------------------------------
 
