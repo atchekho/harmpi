@@ -79,7 +79,7 @@
 #define SNDWAVE_TEST 7
 #define ENTWAVE_TEST 8
 
-#define WHICHPROBLEM MONOPOLE_PROBLEM_2D
+#define WHICHPROBLEM TORUS_PROBLEM
 #define DOKTOT   1
 
 /** here are the few things that we change frequently **/
