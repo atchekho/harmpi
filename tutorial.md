@@ -46,6 +46,8 @@
 
 		mpirun -n 4 ./harm 2 2 1
 
+	Here, `-n 4` option tells `mpirun` to use `4` cores, `./harm` specifies the executable ("`./`" is to indicate the current directory) and the arguments `2 2 1` specify the number of cores in each of the 3 dimensions.
+
 * To run the code in serial (on a single core), do the following:
 
 		./harm 1 1 1
