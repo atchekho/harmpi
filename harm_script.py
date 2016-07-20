@@ -1090,16 +1090,16 @@ if __name__ == "__main__":
         if False:
             #1D plot example
             plt.clf()
-                rg("gdump")
-                rd("dump000")
-                plt.loglog(r[:,ny/2,0],rho[:,ny/2,0])
-                plt.xlabel("r")
-                plt.ylabel("rho")
-            if False:
-                #2D plot example
-                plt.clf()
-                rg("gdump")
-                rd("dump000")
-                #R-z plot of the logarithm of density distribution
-                plc(np.log10(rho),cb=True,xy=1,xmax=100,ymax=50)
+            rg("gdump")
+            rd("dump000")
+            plt.loglog(r[:,ny/2,0],rho[:,ny/2,0])
+            plt.xlabel("r")
+            plt.ylabel("rho")
+        if False:
+            #2D plot example
+            plt.clf()
+            rg("gdump")
+            rd("dump000")
+            #R-z plot of the logarithm of density distribution
+            plc(np.log10(rho),cb=True,xy=1,xmax=100,ymax=50)
 
