@@ -42,13 +42,15 @@
 
 * To run the code
 
-	You choose the number of tiles along each of the 3 directions at run time. E.g., if `N1 = N2 = N3 = 32`, and you choose to run with two cores in each of the 3 dimensions, you get a resolution of 64x64x64 cells by running
+	You choose the number of tiles along each of the 3 directions at run time. E.g., if `N1 = N2 = 64` and `N3 = 1`, and you choose to run with two cores in r- and theta-directions and one core in the phi-direction, you get a resolution of 128x128x1 cells by running
 
-		mpirun -n 8 ./harm 2 2 2
+		mpirun -n 4 ./harm 2 2 1
 
 * To run the code in serial (on a single core), do the following:
 
 		./harm 1 1 1
+
+	For the example above, this would give a total resolution of 64x64x1 cells.
 
 	As the code runs, it produces sequential dump files in the 'dumps' subdirectory, i.e., dumps/dump###. It also produces dumps/gdump file that contains the information about the metric and the grid.
 
