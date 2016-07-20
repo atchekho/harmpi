@@ -42,7 +42,7 @@
 
 * To run the code
 
-	You choose the number of tiles along each of the 3 directions at run time. E.g., if `N1 = N2 = 64` and `N3 = 1`, and you choose to run with 4 cores in r-direction, 2 cores in theta-directions and one core in the phi-direction, you get a resolution of 256x128x1 cells by running
+	You choose the number of tiles along each of the 3 directions at run time. E.g., if `N1 = N2 = 64` and `N3 = 1`, and you choose to run with 4 cores in r-direction, 2 cores in theta-direction and one core in the phi-direction, you get a resolution of 256x128x1 cells by running
 
 		mpirun -n 8 ./harm 4 2 1
 
