@@ -42,11 +42,11 @@
 
 * To run the code
 
-	You choose the number of tiles along each of the 3 directions at run time. E.g., if `N1 = N2 = 64` and `N3 = 1`, and you choose to run with two cores in r- and theta-directions and one core in the phi-direction, you get a resolution of 128x128x1 cells by running
+	You choose the number of tiles along each of the 3 directions at run time. E.g., if `N1 = N2 = 64` and `N3 = 1`, and you choose to run with 4 cores in r-direction, 2 cores in theta-directions and one core in the phi-direction, you get a resolution of 256x128x1 cells by running
 
-		mpirun -n 4 ./harm 2 2 1
+		mpirun -n 8 ./harm 4 2 1
 
-	Here, `-n 4` option tells `mpirun` to use `4` cores, `./harm` specifies the executable ("`./`" is to indicate the current directory) and the arguments `2 2 1` specify the number of cores in each of the 3 dimensions.
+	Here, `-n 8` option tells `mpirun` to use `8` total cores, `./harm` specifies the executable ("`./`" is to indicate the current directory) and the arguments `4 2 1` specifies how these cores are distributed among the dimensions.
 
 * To run the code in serial (on a single core), do the following:
 
