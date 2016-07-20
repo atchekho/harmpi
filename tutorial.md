@@ -52,7 +52,8 @@
 
 		./harm 1 1 1
 
-	For the example above, this would give a total resolution of 64x64x1 cells.
+	For the example above, this would give a total resolution of 64x64x1 cells. Note: it is a good idea to clean out the `dumps/` directory before you run the code, or else the code would attempt to restart from `dumps/rdump0`.
+
 
 	As the code runs, it produces sequential dump files in the 'dumps' subdirectory, i.e., dumps/dump###. It also produces dumps/gdump file that contains the information about the metric and the grid.
 
@@ -198,4 +199,10 @@ HARMPI (like HARM2D) is capable of using non-uniform grids. The examples below w
 
 		plt.figure()
 
-	
+* Make a movie:
+
+	You can make a simple movie by running
+
+		mkmov_simple(starti = 0,endi = 100)
+
+	Here `starti` is the first frame number and `endi` is the last frame number.
