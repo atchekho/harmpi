@@ -38,15 +38,15 @@
 
 * Choosing desired resolution
 
-	You can choose the desired resolution per MPI *tile* by changing the values of `N1`, `N2`, and `N3` for the chosen problem in [decs.h](decs.h).
+	You can choose the desired resolution per *tile*, or per MPI process, by changing the values of `N1`, `N2`, and `N3` for the chosen problem in [decs.h](decs.h). If there are more than one tile, this will be smaller than the total resolution.
 
-* To run the code
+* Choosing the number of tiles and running the code
 
-	You choose the number of tiles along each of the 3 directions at run time. E.g., if `N1 = N2 = 64` and `N3 = 1`, and you choose to run with 4 cores in r-direction, 2 cores in theta-direction and one core in the phi-direction, you get a resolution of 256x128x1 cells by running
+	You choose the number of tiles along each of the 3 directions at run time. E.g., if `N1 = N2 = 64` and `N3 = 1`, and you choose to run with 4 cores in the r-direction, 2 cores in the theta-direction and one core in the phi-direction, you get a total resolution of 256x128x1 cells by running
 
 		mpirun -n 8 ./harm 4 2 1
 
-	Here, `-n 8` option tells `mpirun` to use `8` total cores, `./harm` specifies the executable ("`./`" is to indicate the current directory) and the arguments `4 2 1` specifies how these cores are distributed among the dimensions.
+	Here, `-n 8` option tells `mpirun` to use `8` total cores, `./harm` specifies the executable ("`./`" is to indicate the current directory) and the arguments `4 2 1` specify how these cores are distributed among the 3 directions.
 
 * To run the code in serial (on a single core), do the following:
 
