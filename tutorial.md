@@ -205,4 +205,4 @@ HARMPI (like HARM2D) is capable of using non-uniform grids. The examples below w
 
 		mkmov_simple(starti = 0,endi = 100)
 
-	Here `starti` is the first frame number and `endi` is the last frame number. Note: the color limits are adjusted for the torus problem (`TORUS_PROBLEM`), and you'd have to adjust them for other problems.
+	Here `starti` is the first frame number and `endi` is the last frame number. Note: the color limits are tuned for the torus problem (`TORUS_PROBLEM`), and you'd have to adjust them for other problems.
