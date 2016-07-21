@@ -151,7 +151,7 @@ void init_torus()
   gam = 5./3. ;
 
   /* disk parameters (use fishbone.m to select new solutions) */
-  a = 0.5 ;
+  a = 0.9 ;
   rin = 6. ;
   rmax = 13. ;
   l = lfish_calc(rmax) ;
