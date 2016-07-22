@@ -70,10 +70,10 @@
 * Resolving potential run-time problems
 
 	* If you experience `Signal code: Integer divide-by-zero (7)`
-    error, try upgrading `OpenMPI` to
-    [v. 2.0](https://www.open-mpi.org/software/ompi/v2.0/ "OpenMPI
-    v. 2.0"). Combination of latest versions of GCC
-    [v. 6.1](https://gcc.gnu.org/gcc-6/ "GCC v. 6.1") and OpenMPI [v. 2.0](https://www.open-mpi.org/software/ompi/v2.0/ "OpenMPI
+    error, try upgrading to 
+    [OpenMPI v. 2.0](https://www.open-mpi.org/software/ompi/v2.0/ "OpenMPI
+    v. 2.0"). Combination of latest versions of 
+    [GCC v. 6.1](https://gcc.gnu.org/gcc-6/ "GCC v. 6.1") and [OpenMPI v. 2.0](https://www.open-mpi.org/software/ompi/v2.0/ "OpenMPI
     v. 2.0") has been
     verified to work. (thanks Matthias Raives for the tip)
 
