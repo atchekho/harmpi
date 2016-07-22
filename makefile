@@ -44,7 +44,7 @@
 #### set USEICC to 0 if you want gcc compiler options, else set to 1 to use icc
 ########  gcc generally used for debugging with -g option so we can use gdb 
 USEICC = 0
-USEOMP = 0
+USEOMP = 0  #please do not use this option (yet), as this has not been recently tested
 USEMPI = 1
 
 ifeq ($(USEICC),1)
