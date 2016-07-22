@@ -36,6 +36,11 @@
 		make clean
 		make
 
+* Resolving possible compilation problems
+
+	* Sometimes `-lm` switch needs to be added (line 74 in
+    (makefile)[makefile])
+
 * Choosing desired resolution
 
 	You can choose the desired resolution per *tile*, or per MPI process, by changing the values of `N1`, `N2`, and `N3` for the chosen problem in [decs.h](decs.h). If there are more than one tile, this will be smaller than the total resolution.
@@ -61,6 +66,19 @@
 
 
 	As the code runs, it produces sequential dump files in the 'dumps' subdirectory, i.e., dumps/dump###. It also produces dumps/gdump file that contains the information about the metric and the grid.
+
+* Resolving potential run-time problems
+
+	* If you experience `Signal code: Integer divide-by-zero (7)` error, try upgrading
+    `OpenMPI` to v. `2.0` (thanks Matthias Raives for the tip)
+
+	* If you experience `File locking failed`, try setting `#define
+      DO_PARALLEL_WRITE (0)` in (decs.h)[decs.h]. This will force each
+      MPI process to write its own file instead combining the output
+      into a single file. In this case, the outputs of different
+      processes will be combined into a single file upon reading in
+      the files in python.
+
 
 ## How to read in the output into Python
 
