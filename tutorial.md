@@ -39,11 +39,11 @@
 * Resolving possible compilation problems
 
 	* Sometimes `-lm` switch needs to be added (line 74 in
-    (makefile)[makefile])
+    [makefile](makefile))
 
 * Choosing desired resolution
 
-	You can choose the desired resolution per *tile*, or per MPI process, by changing the values of `N1`, `N2`, and `N3` for the chosen problem in [decs.h](decs.h). If there are more than one tile, this will be smaller than the total resolution.
+	You can choose the desired resolution per *tile*, or per MPI process, by changing the values of `N1`, `N2`, and `N3` for the chosen problem in (decs.h)[decs.h]. If there are more than one tile, this will be smaller than the total resolution.
 
 * Choosing the number of tiles and running the code
 
