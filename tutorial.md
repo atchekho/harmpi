@@ -63,38 +63,39 @@
         `#define BZ_MONOPOLE_2D 3`
 
 	* Setup is same as ``MONOPOLE_PROBLEM_2` but with a smaller outer
-      radius, `Rout = 1e2` gravitational radii. Due to the limited
-      radial range, this problem would not allow you to study the
-      acceleration of the outflow, for which >= 3 orders of magnitudes
-      in radius is ideal. However, this problem is great for studying
-      the power output of the black hole.
+    radius, `Rout = 1e2` gravitational radii. Due to the limited
+    radial range, this problem would not allow you to study the
+    acceleration of the outflow, for which >= 3 orders of magnitudes
+    in radius is ideal. However, this problem is great for studying
+    the power output of the black hole.
 
 
         `#define TORUS_PROBLEM 4`
 
 	* Torus problem consists of an equilibrium hydrodynamic torus on
-      an orbit around the black hole. The torus has an inner
-      radius of `rin = 6` gravitational radii, pressure maximum at
-      `rmax = 13`. This leads to torus' outer extent of about `50`
-      gravitational radii. Without any magnetic field, the torus would
-      sit on an orbit forever. To get some action, we insert a
-      *poloidal* (in R-z plane) magnetic field loop into the
-      torus. This magnetic field is unstable to the magnetorotational
-      instability (MRI), which transports the angular momentum outward
-      and causes the gas and magnetic field to move inward, toward the
-      black hole. This culminates in black hole receiving large-scale
-      magnetic flux, which we originally inserted into the disk, and
-      this flux powers a twin relativistic jets. You can make a movie
-      of this by following instructions below.
+    an orbit around the black hole. The torus has an inner radius of
+    `rin = 6` gravitational radii, pressure maximum at `rmax =
+    13`. This leads to torus' outer extent of about `50` gravitational
+    radii. Without any magnetic field, the torus would sit on an orbit
+    forever. To get some action, we insert a *poloidal* (in R-z plane)
+    magnetic field loop into the torus. This magnetic field is
+    unstable to the magnetorotational instability (MRI), which
+    transports the angular momentum outward and causes the gas and
+    magnetic field to move inward, toward the black hole. This
+    culminates in black hole receiving large-scale magnetic flux,
+    which we originally inserted into the disk, and this flux powers a
+    twin relativistic jets. You can make a movie of this by following
+    instructions below.
 
 		`#define BONDI_PROBLEM_1D 5`
 		`#define BONDI_PROBLEM_2D 6`
 
 	* These two problems start with a uniform density and temperature
-      at `r >= 10` gravitational radii. Inside of this "hole", I put
-      very low density and pressure. As you run the simulation, the
-      "hole" gets quickly eaten by the black hole. What results is a
-      spherically-symmetric accretion from a uniform-density ambient medium.
+    at `r >= 10` gravitational radii. Inside of this "hole", I put
+    very low density and pressure. As you run the simulation, the
+    "hole" gets quickly eaten by the black hole. What results is a
+    spherically-symmetric accretion from a uniform-density ambient
+    medium.
 
 		`#define SNDWAVE_TEST 7`
 
