@@ -35,9 +35,9 @@
 
 * Brief descriptions of the problems
 
-		//which problem
-		#define MONOPOLE_PROBLEM_1D 1
-		#define MONOPOLE_PROBLEM_2D 2
+		`//which problem`
+		`#define MONOPOLE_PROBLEM_1D 1`
+		`#define MONOPOLE_PROBLEM_2D 2`
 
 	Use these problems for studying *acceleration* and black hole *power
     output* in an unconfined magnetosphere: radial magnetic field
@@ -60,7 +60,7 @@
     poloidal magnetic field lines are free to move around in the R-z
     plane.
 	
-        #define BZ_MONOPOLE_2D 3
+        `#define BZ_MONOPOLE_2D 3`
 
 	* Setup is same as ``MONOPOLE_PROBLEM_2` but with a smaller outer
       radius, `Rout = 1e2` gravitational radii. Due to the limited
@@ -70,7 +70,7 @@
       the power output of the black hole.
 
 
-        #define TORUS_PROBLEM 4
+        `#define TORUS_PROBLEM 4`
 
 	* Torus problem consists of an equilibrium hydrodynamic torus on
       an orbit around the black hole. The torus has an inner
@@ -87,8 +87,8 @@
       this flux powers a twin relativistic jets. You can make a movie
       of this by following instructions below.
 
-		#define BONDI_PROBLEM_1D 5
-		#define BONDI_PROBLEM_2D 6
+		`#define BONDI_PROBLEM_1D 5`
+		`#define BONDI_PROBLEM_2D 6`
 
 	* These two problems start with a uniform density and temperature
       at `r >= 10` gravitational radii. Inside of this "hole", I put
@@ -96,11 +96,11 @@
       "hole" gets quickly eaten by the black hole. What results is a
       spherically-symmetric accretion from a uniform-density ambient medium.
 
-		#define SNDWAVE_TEST 7
+		`#define SNDWAVE_TEST 7`
 
 	* This is a sound wave test
 
-		#define ENTWAVE_TEST 8
+		`#define ENTWAVE_TEST 8`
 
 	* This is an entropy wave test
 
