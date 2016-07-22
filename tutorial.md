@@ -51,7 +51,7 @@
 
 		mpirun -n 8 ./harm 4 2 1
 
-	Here, `-n 8` option tells `mpirun` to use `8` total tiles (one
+	Here, `-n 8` option tells `mpirun` to use `8` (`= 4*2*1`) total tiles (one
     tile per core), `./harm` specifies the executable ("`./`" is to
     indicate the current directory) and the arguments `4 2 1` specify
     how these cores are distributed among the 3 directions. Note: OpenMP
