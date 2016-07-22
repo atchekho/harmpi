@@ -46,7 +46,12 @@
 
 		mpirun -n 8 ./harm 4 2 1
 
-	Here, `-n 8` option tells `mpirun` to use `8` total cores, `./harm` specifies the executable ("`./`" is to indicate the current directory) and the arguments `4 2 1` specify how these cores are distributed among the 3 directions.
+	Here, `-n 8` option tells `mpirun` to use `8` total tiles (one
+    tile per core), `./harm` specifies the executable ("`./`" is to
+    indicate the current directory) and the arguments `4 2 1` specify
+    how these cores are distributed among the 3 directions. Note: OpenMP
+    support is presently in development, but it is not yet ready for
+    prime time.
 
 * To run the code in serial (on a single core), do the following:
 
