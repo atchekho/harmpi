@@ -39,7 +39,7 @@
 * Resolving possible compilation problems
 
 	* Sometimes `-lm` switch needs to be added (line 74 in
-    [makefile](makefile))
+    [makefile](makefile#L74))
 
 * Choosing desired resolution
 
