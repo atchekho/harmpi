@@ -110,7 +110,7 @@ $(EXE): $(OBJS) $(INCS) makefile
 
 
 image_interp: image_interp.c
-	$(CC_LOAD) $(EXTRALIBS) image_interp.c -o image_interp
+	$(CC_LOAD) image_interp.c $(EXTRALIBS) -o image_interp
 
 clean:
 	/bin/rm -f *.o *.il
