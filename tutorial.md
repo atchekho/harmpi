@@ -76,8 +76,7 @@
       DO_PARALLEL_WRITE (0)` in [decs.h](decs.h). This will force each
       MPI process to write its own file instead combining the output
       into a single file. In this case, the outputs of different
-      processes will be combined into a single file upon reading in
-      the files in python.
+      processes will be combined upon reading in the files in python.
 
 
 ## How to read in the output into Python
