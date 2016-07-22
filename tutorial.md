@@ -78,7 +78,7 @@
     verified to work. (thanks Matthias Raives for the tip)
 
 	* If you experience `File locking failed`, try setting `#define
-      DO_PARALLEL_WRITE (0)` in [decs.h](decs.h). This will force each
+      DO_PARALLEL_WRITE (0)` on line 369 [decs.h](decs.h#L369). This will force each
       MPI process to write its own file instead combining the output
       into a single file. In this case, the outputs of different
       processes will be combined upon reading in the files in python.
