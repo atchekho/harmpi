@@ -55,11 +55,11 @@
 		magnetic poloidal field lines are forced to be pointing radially outward
 		and are pinned (e.g., cannot move around).
 
-		* ``MONOPOLE_PROBLEM_2D`: 2D version of the problem. Here, the
+		* `MONOPOLE_PROBLEM_2D`: 2D version of the problem. Here, the
 		poloidal magnetic field lines are free to move around in the R-z
 		plane.
 
-	* BZ monopole problem (`#define BZ_MONOPOLE_2D`)
+	* BZ monopole problem (`BZ_MONOPOLE_2D`)
 
 		same as ``MONOPOLE_PROBLEM_2D` but with a smaller outer
 		radius, `Rout = 1e2` gravitational radii. Due to the limited
@@ -68,7 +68,7 @@
 		in radius is ideal. However, this problem is great for studying
 		the power output of the black hole.
     
-	* Torus problem (`#define TORUS_PROBLEM 4`)
+	* Torus problem (`TORUS_PROBLEM`)
 
 		Consists of an equilibrium hydrodynamic torus on
 		an orbit around the black hole. The torus has an inner radius of
@@ -85,7 +85,7 @@
 		twin relativistic jets. You can make a movie of this by following
 		instructions below.
 
-	* Bondi problem (1D and 2D; `#define BONDI_PROBLEM_1D 5`, `#define BONDI_PROBLEM_2D 6`)
+	* Bondi problem (1D and 2D; `BONDI_PROBLEM_1D`, `BONDI_PROBLEM_2D`)
 
 		These two problems start with a uniform density and temperature
 		at `r >= 10` gravitational radii. Inside of this "hole", I put
@@ -94,14 +94,12 @@
 		spherically-symmetric accretion from a uniform-density ambient
 		medium.
 
-		
-
-	* `#define SNDWAVE_TEST 7`
+	* Sound wave problem (`SNDWAVE_TEST`)
 
 	   This is a sound wave test
 
 
-    * `#define ENTWAVE_TEST 8`
+    * Entropy wave problem (`ENTWAVE_TEST`)
 
 	   This is an entropy wave test
 
