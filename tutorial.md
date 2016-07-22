@@ -73,7 +73,7 @@
     `OpenMPI` to v. `2.0` (thanks Matthias Raives for the tip)
 
 	* If you experience `File locking failed`, try setting `#define
-      DO_PARALLEL_WRITE (0)` in (decs.h)[decs.h]. This will force each
+      DO_PARALLEL_WRITE (0)` in [decs.h](decs.h). This will force each
       MPI process to write its own file instead combining the output
       into a single file. In this case, the outputs of different
       processes will be combined into a single file upon reading in
