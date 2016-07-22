@@ -29,7 +29,80 @@
 
 		#define WHICHPROBLEM TORUS_PROBLEM
 
-	This is a magnetized torus accretion problem in 2D. For starters, however, it might be easier to start with a 1D problem without magnetic field, e.g., with `BONDI_PROBLEM_1D`.
+	This is a magnetized torus accretion problem in 2D. For starters,
+    however, it might be easier to start with a 1D problem without
+    magnetic field, e.g., with `BONDI_PROBLEM_1D`.
+
+* Brief descriptions of the problems
+
+		//which problem
+		#define MONOPOLE_PROBLEM_1D 1
+		#define MONOPOLE_PROBLEM_2D 2
+
+	Use these problems for studying *acceleration* and black hole *power
+    output* in an unconfined magnetosphere: radial magnetic field
+    lines, low-density atmosphere, outer radius `Rout = 1e3`
+    gravitational radii. You can increase the size of the domain to
+    study acceleration over longer range in distance. To increase
+    `Rout` from the default value of `1e3` to e.g. `1e4`, go to
+    [init.c:74](init.c#L74) and change `init_monopole(1e3);` to
+    `init_monopole(1e4);`. Note that in order to keep the effective
+    resolution the same, you'd need to increase the resolution by a
+    factor of `log(1e4)/log(1e3) = 4/3`. There are two versions of the
+    problem:
+
+	* `MONOPOLE_PROBLEM_1D`: 1D version of the problem,
+    with the grid in the midplane (`z = 0`). In this setup, the
+    magnetic poloidal field lines are forced to be pointing radially outward
+    and are pinned (e.g., cannot move around).
+
+	* ``MONOPOLE_PROBLEM_2D`: 2D version of the problem. Here, the
+    poloidal magnetic field lines are free to move around in the R-z
+    plane.
+	
+        #define BZ_MONOPOLE_2D 3
+
+	* Setup is same as ``MONOPOLE_PROBLEM_2` but with a smaller outer
+      radius, `Rout = 1e2` gravitational radii. Due to the limited
+      radial range, this problem would not allow you to study the
+      acceleration of the outflow, for which >= 3 orders of magnitudes
+      in radius is ideal. However, this problem is great for studying
+      the power output of the black hole.
+
+
+        #define TORUS_PROBLEM 4
+
+	* Torus problem consists of an equilibrium hydrodynamic torus on
+      an orbit around the black hole. The torus has an inner
+      radius of `rin = 6` gravitational radii, pressure maximum at
+      `rmax = 13`. This leads to torus' outer extent of about `50`
+      gravitational radii. Without any magnetic field, the torus would
+      sit on an orbit forever. To get some action, we insert a
+      *poloidal* (in R-z plane) magnetic field loop into the
+      torus. This magnetic field is unstable to the magnetorotational
+      instability (MRI), which transports the angular momentum outward
+      and causes the gas and magnetic field to move inward, toward the
+      black hole. This culminates in black hole receiving large-scale
+      magnetic flux, which we originally inserted into the disk, and
+      this flux powers a twin relativistic jets. You can make a movie
+      of this by following instructions below.
+
+		#define BONDI_PROBLEM_1D 5
+		#define BONDI_PROBLEM_2D 6
+
+	* These two problems start with a uniform density and temperature
+      at `r >= 10` gravitational radii. Inside of this "hole", I put
+      very low density and pressure. As you run the simulation, the
+      "hole" gets quickly eaten by the black hole. What results is a
+      spherically-symmetric accretion from a uniform-density ambient medium.
+
+		#define SNDWAVE_TEST 7
+
+	* This is a sound wave test
+
+		#define ENTWAVE_TEST 8
+
+	* This is an entropy wave test
 
 * Compile:
 
