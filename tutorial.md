@@ -61,7 +61,7 @@
 
 	* BZ monopole problem (`BZ_MONOPOLE_2D`)
 
-		same as ``MONOPOLE_PROBLEM_2D` but with a smaller outer
+		same as `MONOPOLE_PROBLEM_2D` but with a smaller outer
 		radius, `Rout = 1e2` gravitational radii. Due to the limited
 		radial range, this problem would not allow you to study the
 		acceleration of the outflow, for which >= 3 orders of magnitudes
@@ -142,12 +142,14 @@
 * Resolving potential run-time problems
 
 	* If you experience `Signal code: Integer divide-by-zero (7)`
-    error, try upgrading to 
-    [OpenMPI v. 2.0](https://www.open-mpi.org/software/ompi/v2.0/ "OpenMPI
-    v. 2.0"). Combination of latest versions of 
-    [GCC v. 6.1](https://gcc.gnu.org/gcc-6/ "GCC v. 6.1") and [OpenMPI v. 2.0](https://www.open-mpi.org/software/ompi/v2.0/ "OpenMPI
-    v. 2.0") has been
-    verified to work. (thanks Matthias Raives for the tip)
+    error, you have two options
+		* upgrade to 
+		[OpenMPI v. 2.0](https://www.open-mpi.org/software/ompi/v2.0/ "OpenMPI
+		v. 2.0"). Combination of latest versions of 
+		[GCC v. 6.1](https://gcc.gnu.org/gcc-6/ "GCC v. 6.1") and [OpenMPI v. 2.0](https://www.open-mpi.org/software/ompi/v2.0/ "OpenMPI
+		v. 2.0") has been
+		verified to work. (thanks Matthias Raives for the tip)
+		* follow the below solution for `File locking failed` problem
 
 	* If you experience `File locking failed`, try setting `#define
       DO_PARALLEL_WRITE (0)` in [decs.h:369](decs.h#L369). This will force each
