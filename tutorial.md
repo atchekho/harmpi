@@ -155,7 +155,14 @@
       DO_PARALLEL_WRITE (0)` in [decs.h:369](decs.h#L369). This will force each
       MPI process to write its own file instead combining the output
       into a single file. In this case, the outputs of different
-      processes will be combined upon reading in the files in python.
+      processes will be combined upon reading in the files in
+      python. Note: once you do this, each dump file will no longer be
+      a single file but multiple files, one file per core. So, if you
+      are running on 4 cores, instead of `dump000` you would get 4
+      files, `dump000_0000`, `dump000_0001`, `dump000_0002`,
+      `dump000_0003`. You can read in these files the usual way,
+      `rd("dump000")`: the python macros will take care of merging the
+      files together automatically.
 
 
 ## How to read in the output into Python
