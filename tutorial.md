@@ -61,7 +61,7 @@
 
 	* BZ monopole problem (`BZ_MONOPOLE_2D`)
 
-		same as `MONOPOLE_PROBLEM_2D` but with a smaller outer
+		Same as `MONOPOLE_PROBLEM_2D` but with a smaller outer
 		radius, `Rout = 1e2` gravitational radii. Due to the limited
 		radial range, this problem would not allow you to study the
 		acceleration of the outflow, for which >= 3 orders of magnitudes
