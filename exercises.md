@@ -1,5 +1,7 @@
 # HARMPI exercises by Sasha Tchekhovskoy
 
+Please also see the [tutorial](tutorial.md) that explains basic code use.
+
 ## Hydro problems
 
 To run problems with HARMPI and to analyze the results, please follow this [tutorial](tutorial.md).

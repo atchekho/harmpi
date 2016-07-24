@@ -1,5 +1,8 @@
 # HARMPI Tutorial by Sasha Tchekhovskoy
 
+Please also see useful [exercises](exercises.md) that give you an idea
+of scientific questions that you can answer with the code.
+
 ##How to set up HARMPI: choose the problem, compile, and run the code:
 
 * To install the code, you do:
