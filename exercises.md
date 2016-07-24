@@ -10,7 +10,7 @@ To run problems with HARMPI and to analyze the results, please follow this [tuto
 
 	Set `WHICHPROBLEM` to `BONDI_PROBLEM_1D` in [decs.h](decs.h). Note: a good total resolution is 256x1x1
 
-	* Plot the profiles of density at a few times in a simulation. Determine the position of the sonic surface. 
+	* Plot the profiles of density at a few times in a simulation. Determine the position of the sonic surface.  Hint: look at where `v1p` variable changes sign. Ordinarily, `v1p` tells dr/dt of the outgoing (positive, `p`) fast wave (in this problem there is no magnetic field, so fast waves are sound waves). At large radii the flow barely falls inward, so it will be `> 0` but at small radii the flow falls inward supersonically, at the speed of light, so it will be `< 0`.
 
 ## Magnetized problems
 
@@ -45,5 +45,5 @@ To run problems with HARMPI and to analyze the results, please follow this [tuto
 
 	Set `WHICHPROBLEM` to `TORUS_PROBLEM` in [decs.h](decs.h).  Note: a good total resolution is 256x256x1. It will take some time for the problem to complete depending on the number of cores used.
 
-	* Check by how many cells the MRI wavelength is resolved in the initial conditions. Good resolution is $\gtrsim15$ cells per wavelength, but you could sometimes also get away with $\gtrsim 5{-}10$.
+	* Check by how many cells the MRI wavelength is resolved in the initial conditions. Good resolution is $\gtrsim15$ cells per wavelength, but you could sometimes also get away with $\gtrsim 5{-}10$. Hint: a call to `Qmri(dir=2)` returns the number of cells per wavelength of the fastest growing MRI mode in the $\theta$-direction.
     * Make a movie of the simulation: logarithm of density shown with color contours overlaid with magnetic field lines. Feel free to ask for guidance on how to make the movie.
