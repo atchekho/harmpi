@@ -14,9 +14,9 @@ of scientific questions that you can answer with the code.
 
 	If you would like to use ICC instead of GCC, then edit makefile and replace "USEICC = 0" with "USEICC = 1".
 
-	Before running one of the problems with HARMPI, you choose the problem you want to run in the file decs.h.
+	Before running one of the problems with HARMPI, you choose the problem you want to run in the file [decs.h](decs.h).
 
-	You do so by modifying decs.h. There are 8 problems to choose from:
+	You do so by modifying [decs.h](decs.h). There are 8 problems to choose from:
 
 		//which problem
 		#define MONOPOLE_PROBLEM_1D 1
