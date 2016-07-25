@@ -215,7 +215,6 @@ HARMPI (like HARM2D) is capable of using non-uniform grids. The examples below w
 
     * `x1`, `x2`, `x3` -- internal coordinates
 
-
 	* `r`, `h` , `ph` -- spherical polar coordinates (radius, theta,
     and phi)
 
