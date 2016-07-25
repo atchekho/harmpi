@@ -659,20 +659,18 @@ def gdump2_assign(gd,**kwargs):
 
 #read in a dump file
 def dump_assign(gd,**kwargs):
-    global t,nx,ny,nz,_dx1,_dx2,_dx3,gam,hslope,a,R0,Rin,Rout,ti,tj,tk,x1,x2,x3,r,h,ph,rho,ug,vu,B,pg,cs2,Sden,U,gdetB,divb,uu,ud,bu,bd,v1m,v1p,v2m,v2p,gdet,bsq,gdet,alpha,rhor, ktot, Ttot, game, qisosq, pflag, qisodotb, kel, uelvar, Tel4, Tel5,Teldis, Tels, kel4, kel5,ugel,ugeldis, ugcon, sel, ugscon, ugel4, ugel5,stot, uelvar, Telvar, Tsel, sel, ugels, games, phi, keldis, phihat,csphib,lrho, Tnuc, Tnuc_cgs, etae, flr
-    global kel4a, kel4b, kel4c, kel4d, kel4e, ugel4a, ugel4b, ugel4c, ugel4d, ugel4e
-    global Tel4a, Tel4b, Tel4c, Tel4d, Tel4e 
-    global vpot
+    global t,nx,ny,nz,_dx1,_dx2,_dx3,gam,hslope,a,R0,Rin,Rout,ti,tj,tk,x1,x2,x3,r,h,ph,rho,ug,vu,B,pg,cs2,Sden,U,gdetB,divb,uu,ud,bu,bd,v1m,v1p,v2m,v2p,gdet,bsq,gdet,alpha,rhor, ktot, pg
     nx = kwargs.pop("nx",nx)
     ny = kwargs.pop("ny",ny)
     nz = kwargs.pop("nz",nz)
     ti,tj,tk,x1,x2,x3,r,h,ph,rho,ug = gd[0:11,:,:].view(); n = 11
+    pg = (gam-1)*ug
     lrho=np.log10(rho)
     vu=np.zeros_like(gd[0:4])
     B=np.zeros_like(gd[0:4])
     vu[1:4] = gd[n:n+3]; n+=3
     B[1:4] = gd[n:n+3]; n+=3
-    #if electrons are evolved
+    #if total entropy equation is evolved (on by default)
     if DOKTOT == 1:
       ktot = gd[n]; n+=1
     divb = gd[n]; n+=1
