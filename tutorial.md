@@ -206,52 +206,52 @@ HARMPI (like HARM2D) is capable of using non-uniform grids. The examples below w
 
 ## Understanding the output
 
-	For understanding of the output it is useful to take a briel look
-    at the
-    [code responsible for writing the data to the grid](dump.c#L144)
-    and the [python script reading the output](harm_script.py#L669).
-	
-    * `ti`, `tj`, `tk` -- spatial coordinates on the grid
+For understanding of the output it is useful to take a briel look
+at the
+[code responsible for writing the data to the grid](dump.c#L144)
+and the [python script reading the output](harm_script.py#L669).
 
-    * `x1`, `x2`, `x3` -- internal coordinates
+* `ti`, `tj`, `tk` -- spatial coordinates on the grid
 
-	* `r`, `h` , `ph` -- spherical polar coordinates (radius, theta,
-    and phi)
+* `x1`, `x2`, `x3` -- internal coordinates
 
-	* `rho` -- density
+* `r`, `h` , `ph` -- spherical polar coordinates (radius, theta,
+and phi)
 
-	* `ug` -- internal gas energy density (per unit volume)
+* `rho` -- density
 
-    * `pg = (gam-1)*ug` -- gas thermal pressure
+* `ug` -- internal gas energy density (per unit volume)
 
-    * `vu` = $v^i$ -- 4-velocity relative to a zero angular momentum
-    observer (ZAMO). You probably won't need to be looking at this.
+* `pg = (gam-1)*ug` -- gas thermal pressure
 
-    * `B` = $B^i$ -- lab-frame magnetic field (3 spatial components)
+* `vu` = $v^i$ -- 4-velocity relative to a zero angular momentum
+observer (ZAMO). You probably won't need to be looking at this.
 
-    *  `ktot` = `pg/rho**gam` -- the exponent that goes into entropy.
+* `B` = $B^i$ -- lab-frame magnetic field (3 spatial components)
 
-	* `divb` -- divergence of the magnetic field. Once properly
-      normalized, should be much less then unity.
+*  `ktot` = `pg/rho**gam` -- the exponent that goes into entropy.
 
-	* `uu` = $u^\mu$ -- contravariant gas 4-velocity as measured at
-    infinity
-	
-    * `ud` = $u_\mu$ -- covariant gas 4-velocity as measured at
-    infinity
-	
-    * `bu` = $b^\mu$ -- fluid frame contravariant 4-vector of magnetic
-    field
-	
-    * `bd` = $b_\mu$ -- fluid frame covariant 4-vector of magnetic
-    field
-	
-    * `bsq` = $b^\mu b_\mu = b^2$ -- twice the magnetic pressure
-	
-    * `v1m`, `v1p`, `v2m`, `v2p`, `v3m`, `v3p` -- characteristic
-    velocities
-	
-    * `gdet` = $\sqrt{-g}$ -- square root of the negative of metric determinant
+* `divb` -- divergence of the magnetic field. Once properly
+  normalized, should be much less then unity.
+
+* `uu` = $u^\mu$ -- contravariant gas 4-velocity as measured at
+infinity
+
+* `ud` = $u_\mu$ -- covariant gas 4-velocity as measured at
+infinity
+
+* `bu` = $b^\mu$ -- fluid frame contravariant 4-vector of magnetic
+field
+
+* `bd` = $b_\mu$ -- fluid frame covariant 4-vector of magnetic
+field
+
+* `bsq` = $b^\mu b_\mu = b^2$ -- twice the magnetic pressure
+
+* `v1m`, `v1p`, `v2m`, `v2p`, `v3m`, `v3p` -- characteristic
+velocities
+
+* `gdet` = $\sqrt{-g}$ -- square root of the negative of metric determinant
 
 
 ## How to visualize the output in Python
