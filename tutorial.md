@@ -234,12 +234,23 @@ HARMPI (like HARM2D) is capable of using non-uniform grids. The examples below w
 	* `divb` -- divergence of the magnetic field. Once properly
       normalized, should be much less then unity.
 
-	* `uu` = $u^\mu$ -- contravariant gas 4-velocity as measured at infinity
-    * `ud` = $u_\mu$ -- covariant gas 4-velocity as measured at infinity
-    * `bu` = $b^\mu$ -- fluid frame contravariant 4-vector of magnetic field
-    * `bd` = $b_\mu$ -- fluid frame covariant 4-vector of magnetic field
+	* `uu` = $u^\mu$ -- contravariant gas 4-velocity as measured at
+    infinity
+	
+    * `ud` = $u_\mu$ -- covariant gas 4-velocity as measured at
+    infinity
+	
+    * `bu` = $b^\mu$ -- fluid frame contravariant 4-vector of magnetic
+    field
+	
+    * `bd` = $b_\mu$ -- fluid frame covariant 4-vector of magnetic
+    field
+	
     * `bsq` = $b^\mu b_\mu = b^2$ -- twice the magnetic pressure
-    * `v1m`, `v1p`, `v2m`, `v2p`, `v3m`, `v3p` -- characteristic velocities
+	
+    * `v1m`, `v1p`, `v2m`, `v2p`, `v3m`, `v3p` -- characteristic
+    velocities
+	
     * `gdet` = $\sqrt{-g}$ -- square root of the negative of metric determinant
 
 
