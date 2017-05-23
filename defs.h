@@ -52,15 +52,16 @@
 //
 ////////////////////////////////////////////////////////
 
-#ifdef MPI
-///////////////////////////////////////////////
-// how to write dumps and gdumps in parallel
 void *mpi_file_buffer = NULL;
 dumptype *dump_buffer = NULL;
 gdumptype *gdump_buffer = NULL;
 gdump2type *gdump2_buffer = NULL;
 rdumptype *rdump_buffer = NULL;
 fdumptype *fdump_buffer = NULL;
+
+#ifdef MPI
+///////////////////////////////////////////////
+// how to write dumps and gdumps in parallel
 //
 ////////////////////////////////////////////////
 int mpi_numtasks;

@@ -363,17 +363,18 @@ typedef double gdump2type;
 typedef double rdumptype;
 typedef long long fdumptype;
 
-#ifdef MPI
-///////////////////////////////////////////////
-// how to write dumps and gdumps in parallel
-#define DO_PARALLEL_WRITE (1)
-
 extern void *mpi_file_buffer;
 extern dumptype *dump_buffer;
 extern gdumptype *gdump_buffer;
 extern gdump2type *gdump2_buffer;
 extern rdumptype *rdump_buffer;
 extern fdumptype *fdump_buffer;
+
+#ifdef MPI
+///////////////////////////////////////////////
+// how to write dumps and gdumps in parallel
+#define DO_PARALLEL_WRITE (1)
+
 
 #define MPI_DUMP_TYPE MPI_FLOAT
 #define MPI_GDUMP_TYPE MPI_FLOAT
