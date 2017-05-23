@@ -7,7 +7,7 @@ of scientific questions that you can answer with the code.
 
 * To install the code, you do:
 
-		git clone git@github.com:atchekho/harmpi.git
+		git clone https://github.com/atchekho/harmpi.git
 		cd harmpi
 		make clean
 		make
