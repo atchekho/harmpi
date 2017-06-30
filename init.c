@@ -186,6 +186,14 @@ void init_torus()
   
   fracphi = 0.5;
 
+  //cylindrification parameters
+  global_x10 = 3.5;  //radial distance in MCOORD until which the innermost angular cell is cylinrdical
+  global_x20 = -1. + 1./mpi_ntot[2];     //This restricts grid cylindrification to the one
+  //single grid cell closest to the pole (other cells virtually unaffeced, so there evolution is accurate).
+  //This trick minimizes the resulting pole deresolution and relaxes the time step.
+  //The innermost grid cell is evolved inaccurately whether you resolve it or not, and it will be fixed
+  //by POLEFIX (see bounds.c).
+  
   set_arrays() ;
   set_grid() ;
 
