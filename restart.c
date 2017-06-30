@@ -653,10 +653,12 @@ int fscanf_and_bcast(FILE *fp, char *format, ...)
   if (!strcmp(format,"%lf")) {
       pdouble = va_arg(args,double*);
       MPI_Bcast(pdouble,1,MPI_DOUBLE,MASTER,MPI_COMM_WORLD);
+      MPI_Bcast(&ret,1,MPI_INT,MASTER,MPI_COMM_WORLD);
   }
   else if (!strcmp(format,"%d")) {
       pint = va_arg(args,int*);
       MPI_Bcast(pint,1,MPI_INT,MASTER,MPI_COMM_WORLD);
+      MPI_Bcast(&ret,1,MPI_INT,MASTER,MPI_COMM_WORLD);
   }
   else {
     fprintf(stderr,"Unknown format specifier, %s\n", format);
