@@ -522,8 +522,6 @@ int restart_read(int dumpno)
   fscanf_and_bcast(fp, "%lf", &rbr      );
   fscanf_and_bcast(fp, "%lf", &npow2    );
   fscanf_and_bcast(fp, "%lf", &cpow2    );
-  fscanf_and_bcast(fp, "%lf", &global_x10    );
-  fscanf_and_bcast(fp, "%lf", &global_x20    );
   fscanf_and_bcast(fp, "%lf", &tdump    );
   fscanf_and_bcast(fp, "%lf", &trdump   );
   fscanf_and_bcast(fp, "%lf", &timage   );
