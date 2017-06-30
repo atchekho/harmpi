@@ -148,10 +148,25 @@ void restart_write(int dumpno)
       fprintf(fp, FMT_DBL_OUT, rbr      );
       fprintf(fp, FMT_DBL_OUT, npow2    );
       fprintf(fp, FMT_DBL_OUT, cpow2    );
+      fprintf(fp, FMT_DBL_OUT, global_x10);
+      fprintf(fp, FMT_DBL_OUT, global_x20);
+      fprintf(fp, FMT_DBL_OUT, mrat      );
+      fprintf(fp, FMT_DBL_OUT, fel0      );
+      fprintf(fp, FMT_DBL_OUT, felfloor  );
       fprintf(fp, FMT_DBL_OUT, tdump     );
       fprintf(fp, FMT_DBL_OUT, trdump    );
       fprintf(fp, FMT_DBL_OUT, timage    );
       fprintf(fp, FMT_DBL_OUT, tlog      );
+      fprintf(fp, FMT_DBL_OUT, global_fracdisk  );
+      fprintf(fp, FMT_DBL_OUT, global_fracjet   );
+      fprintf(fp, FMT_DBL_OUT, global_r0disk    );
+      fprintf(fp, FMT_DBL_OUT, global_rdiskend  );
+      fprintf(fp, FMT_DBL_OUT, global_r0jet     );
+      fprintf(fp, FMT_DBL_OUT, global_rjetend   );
+      fprintf(fp, FMT_DBL_OUT, global_jetnu     );
+      fprintf(fp, FMT_DBL_OUT, global_rsjet     );
+      fprintf(fp, FMT_DBL_OUT, global_r0grid    );
+
       fprintf(fp," \n");
 #if MPI && DO_PARALLEL_WRITE
           fclose(fp) ;
@@ -522,10 +537,21 @@ int restart_read(int dumpno)
   fscanf_and_bcast(fp, "%lf", &rbr      );
   fscanf_and_bcast(fp, "%lf", &npow2    );
   fscanf_and_bcast(fp, "%lf", &cpow2    );
+  fscanf_and_bcast(fp, "%lf", &global_x10    );
+  fscanf_and_bcast(fp, "%lf", &global_x20    );
   fscanf_and_bcast(fp, "%lf", &tdump    );
   fscanf_and_bcast(fp, "%lf", &trdump   );
   fscanf_and_bcast(fp, "%lf", &timage   );
   fscanf_and_bcast(fp, "%lf", &tlog     );
+  fscanf_and_bcast(fp, "%lf", &global_fracdisk   );
+  fscanf_and_bcast(fp, "%lf", &global_fracjet    );
+  fscanf_and_bcast(fp, "%lf", &global_r0disk     );
+  fscanf_and_bcast(fp, "%lf", &global_rdiskend   );
+  fscanf_and_bcast(fp, "%lf", &global_r0jet      );
+  fscanf_and_bcast(fp, "%lf", &global_rjetend    );
+  fscanf_and_bcast(fp, "%lf", &global_jetnu      );
+  fscanf_and_bcast(fp, "%lf", &global_rsjet      );
+  fscanf_and_bcast(fp, "%lf", &global_r0grid      );
   
   //skip to the start of the data by
   //reading the rest of the line including the newline ('\n') character

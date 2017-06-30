@@ -441,7 +441,7 @@ def read_file(dump,type=None,savedump=True,saverdump=False,noround=False):
 
 #read in a header
 def read_header(dump,issilent=True,returnheaderline=False):
-    global t,nx,ny,nz,N1,N2,N3,N1G,N2G,N3G,starti,startj,startk,_dx1,_dx2,_dx3,a,gam,Rin,Rout,hslope,R0,ti,tj,tk,x1,x2,x3,r,h,ph,gcov,gcon,gdet,drdx,gn3,gv3,guu,gdd,dxdxp, games, startx1, startx2, startx3, tf, NPR, DOKTOT, BL
+    global t,nx,ny,nz,N1,N2,N3,N1G,N2G,N3G,starti,startj,startk,_dx1,_dx2,_dx3,a,gam,Rin,Rout,hslope,R0,ti,tj,tk,x1,x2,x3,r,h,ph,gcov,gcon,gdet,drdx,gn3,gv3,guu,gdd,dxdxp, games, startx1, startx2, startx3, x10, x20, tf, NPR, DOKTOT, BL
     global fractheta
     global fracphi
     global rbr
@@ -497,17 +497,17 @@ def read_header(dump,issilent=True,returnheaderline=False):
         Rout=myfloat(float(header[n])); n+=1
         hslope=myfloat(float(header[n])); n+=1
         R0=myfloat(float(header[n])); n+=1
-        NPR=int(header[n]); n+=1
-        DOKTOT=int(header[n]); n+=1
-        fractheta = myfloat(header[n]); n+=1
-        fracphi   = myfloat(header[n]); n+=1
-        rbr       = myfloat(header[n]); n+=1
-        npow2     = myfloat(header[n]); n+=1
-        cpow2     = myfloat(header[n]); n+=1
-        BL = myfloat(header[n]); n+=1
+         NPR=int(header[n]); n+=1
+         DOKTOT=int(header[n]); n+=1
+         fractheta = myfloat(header[n]); n+=1
+         fracphi   = myfloat(header[n]); n+=1
+         rbr       = myfloat(header[n]); n+=1
+         npow2     = myfloat(header[n]); n+=1
+         cpow2     = myfloat(header[n]); n+=1
+         BL = myfloat(header[n]); n+=1
     else:
         print("rdump header")
-        nheader = 46
+        nheader = 48
         n = 0
         #per tile resolution
         N1 = int(header[n]); n+=1
@@ -555,10 +555,26 @@ def read_header(dump,issilent=True,returnheaderline=False):
         rbr = myfloat(header[n]); n+=1
         npow2 = myfloat(header[n]); n+=1
         cpow2 = myfloat(header[n]); n+=1
+        x10 = myfloat(header[n]); n+=1
+        x20 = myfloat(header[n]); n+=1
+        mrat = myfloat(header[n]); n+=1
+        fel0 = myfloat(header[n]); n+=1
+        felfloor = myfloat(header[n]); n+=1
         tdump = myfloat(header[n]); n+=1
         trdump = myfloat(header[n]); n+=1
         timage = myfloat(header[n]); n+=1
         tlog  = myfloat(header[n]); n+=1
+    if n < len(header):
+        nheader = 60
+        global_fracdisk   = myfloat(header[n]); n+=1
+        global_fracjet    = myfloat(header[n]); n+=1
+        global_r0disk     = myfloat(header[n]); n+=1
+        global_rdiskend   = myfloat(header[n]); n+=1
+        global_r0jet      = myfloat(header[n]); n+=1
+        global_rjetend    = myfloat(header[n]); n+=1
+        global_jetnu      = myfloat(header[n]); n+=1
+        global_rsjet      = myfloat(header[n]); n+=1
+        global_r0grid     = myfloat(header[n]); n+=1
     if n != nheader or n != nheadertot:
         print("Wrong number of elements in header: nread = %d, nexpected = %d, nototal = %d: incorrect format?"
               % (n, nheader, nheadertot) )

@@ -62,11 +62,28 @@ void bl_coord_vec(double *X, double *V)
 {
 
     if (BL == 1){
+#if(!DOCYLINDRIFYCOORDS)
       //use original coordinates
       vofx_gammiecoords( X, V );
+#else
+      //apply cylindrification to original coordinates
+      //[this internally calls vofx_sjetcoords()]
+      vofx_cylindrified( X, vofx_gammiecoords, V );
+#endif
+      
     }
+  else if (BL == 2){
+#if(!DOCYLINDRIFYCOORDS)
+    //use original coordinates
+    vofx_sjetcoords( X, V );
+#else
+    //apply cylindrification to original coordinates
+    //[this internally calls vofx_sjetcoords()]
+    vofx_cylindrified( X, vofx_sjetcoords, V );
+#endif
+  }
+  
     else{
-        //use uniform coordinates
         V[0] = X[0];
         V[1] = X[1];
         V[2] = X[2];
@@ -206,7 +223,7 @@ void set_points()
     lenx[2] = 1.;
     lenx[3] = 1.;
   }
-  else if(BL == 1){
+  else if(BL == 1 || BL == 2){
     
     const double RELACC = 1e-14;
     const int ITERMAX = 50;
@@ -349,5 +366,381 @@ void rescale(double *pr, int which, int dir, int ii, int jj, int kk, int face, s
     if(MASTER==mpi_rank) fprintf(stderr,"no such rescale type!\n") ;
     exit(100) ;
   }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//
+//  DISK-JET COORDINATES
+//
+//////////////////////////////////////////////////////////////////////////////////////////
+
+void vofx_sjetcoords( double *X, double *V )
+{
+  //for SJETCOORDS
+  double theexp;
+  double Ftrgen( double x, double xa, double xb, double ya, double yb );
+  double limlin( double x, double x0, double dx, double y0 );
+  double minlin( double x, double x0, double dx, double y0 );
+  double mins( double f1, double f2, double df );
+  double maxs( double f1, double f2, double df );
+  double thetaofx2(double x2, double ror0nu);
+  double  fac, faker, ror0nu;
+  double fakerdisk, fakerjet;
+  double rbeforedisk, rinsidedisk, rinsidediskmax, rafterdisk;
+  double ror0nudisk, ror0nujet, thetadisk, thetajet;
+  
+  V[0] = X[0];
+  
+  theexp = X[1];
+  
+  if( X[1] > x1br ) {
+    theexp += cpow2 * pow(X[1]-x1br,npow2);
+  }
+  V[1] = R0+exp(theexp);
+  
+#if(0) //JON's method
+  myhslope=2.0-Qjet*pow(V[1]/r1jet,-njet*(0.5+1.0/M_PI*atan(V[1]/r0grid-rsjet/r0grid)));
+  
+  if(X[2]<0.5){
+    V[2] = M_PI * X[2] + ((1. - myhslope) / 2.) * mysin(2. * M_PI * X[2]);
+  }
+  else{
+    V[2] = M_PI - (M_PI * (1.0-X[2])) + ((1. - myhslope) / 2.) * (-mysin(2. * M_PI * (1.0-X[2])));
+  }
+#elif(1) //SASHA's
+  fac = Ftrgen( fabs(X[2]), global_fracdisk, 1-global_fracjet, 0, 1 );
+  
+  rbeforedisk = mins( V[1], global_r0disk, 0.5*global_r0disk );
+  rinsidedisk = 1.;
+  rinsidediskmax = 1.;
+  rafterdisk = maxs( 1, 1 + (V[1]-global_rdiskend)*global_r0jet/(global_rjetend*global_r0disk*rinsidediskmax), 0.5*global_rdiskend*global_r0jet/(global_rjetend*global_r0disk*rinsidediskmax) );
+  
+  fakerdisk = rbeforedisk * rinsidedisk * rafterdisk;
+  
+  fakerjet = mins( V[1], global_r0jet, 0.5*global_r0jet ) * maxs( 1, V[1]/global_rjetend, 0.5 );
+  
+  ror0nudisk = pow( (fakerdisk - global_rsjet*Rin)/global_r0grid, global_jetnu/2 );
+  ror0nujet = pow( (fakerjet - global_rsjet*Rin)/global_r0grid, global_jetnu/2 );
+  thetadisk = thetaofx2( X[2], ror0nudisk );
+  thetajet = thetaofx2( X[2], ror0nujet );
+  V[2] = fac*thetajet + (1 - fac)*thetadisk;
+#else
+  V[2] = M_PI_2 * (1.0+ X[2]);
+#endif
+  
+  // default is uniform \phi grid
+  V[3]=X[3];
+}
+
+double thetaofx2(double x2, double ror0nu)
+{
+  double theta;
+  if( x2 < -0.5 ) {
+    theta = 0       + atan( tan((x2+1)*M_PI_2)/ror0nu );
+  }
+  else if( x2 >  0.5 ) {
+    theta = M_PI    + atan( tan((x2-1)*M_PI_2)/ror0nu );
+  }
+  else {
+    theta = M_PI_2 + atan( tan(x2*M_PI_2)*ror0nu );
+  }
+  return(theta);
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//
+//  CYLINDRIFICATION
+//
+//////////////////////////////////////////////////////////////////////////////////////////
+
+//smooth step function:
+// Ftr = 0 if x < 0, Ftr = 1 if x > 1 and smoothly interps. in btw.
+double Ftr( double x )
+{
+  double res;
+  
+  if( x <= 0 ) {
+    res = 0;
+  }
+  else if( x >= 1 ) {
+    res = 1;
+  }
+  else {
+    res = (64 + cos(5*M_PI*x) + 70*sin((M_PI*(-1 + 2*x))/2.) + 5*sin((3*M_PI*(-1 + 2*x))/2.))/128.;
+  }
+  
+  return( res );
+}
+
+double Ftrgenlin( double x, double xa, double xb, double ya, double yb )
+{
+  double Ftr( double x );
+  double res;
+  
+  res = (x*ya)/xa + (-((x*ya)/xa) + ((x - xb)*(1 - yb))/(1 - xb) + yb)*Ftr((x - xa)/(-xa + xb));
+  
+  return( res );
+}
+
+//goes from ya to yb as x goes from xa to xb
+double Ftrgen( double x, double xa, double xb, double ya, double yb )
+{
+  double Ftr( double x );
+  double res;
+  
+  res = ya + (yb-ya)*Ftr( (x-xa)/(xb-xa) );
+  
+  return( res );
+}
+
+double Fangle( double x )
+{
+  double res;
+  
+  if( x <= -1 ) {
+    res = 0;
+  }
+  else if( x >= 1 ) {
+    res = x;
+  }
+  else {
+    res = (1 + x + (-140*sin((M_PI*(1 + x))/2.) + (10*sin((3*M_PI*(1 + x))/2.))/3. + (2*sin((5*M_PI*(1 + x))/2.))/5.)/(64.*M_PI))/2.;
+  }
+  
+  return( res );
+  
+}
+
+double limlin( double x, double x0, double dx, double y0 )
+{
+  double Fangle( double x );
+  return( y0 - dx * Fangle(-(x-x0)/dx) );
+}
+
+double minlin( double x, double x0, double dx, double y0 )
+{
+  double Fangle( double x );
+  return( y0 + dx * Fangle((x-x0)/dx) );
+}
+
+double mins( double f1, double f2, double df )
+{
+  double limlin( double x, double x0, double dx, double y0 );
+  return( limlin(f1, f2, df, f2) );
+}
+
+double maxs( double f1, double f2, double df )
+{
+  double mins( double f1, double f2, double df );
+  return( -mins(-f1, -f2, df) );
+}
+
+//=mins if dir < 0
+//=maxs if dir >= 0
+double minmaxs( double f1, double f2, double df, double dir )
+{
+  double mins( double f1, double f2, double df );
+  double maxs( double f1, double f2, double df );
+  if( dir>=0 ) {
+    return( maxs(f1, f2, df) );
+  }
+  
+  return( mins(f1, f2, df) );
+}
+
+static double sinth0( double *X0, double *X, void (*vofx)(double*, double*) );
+static double sinth1in( double *X0, double *X, void (*vofx)(double*, double*) );
+static double th2in( double *X0, double *X, void (*vofx)(double*, double*) );
+static void to1stquadrant( double *Xin, double *Xout, int *ismirrored );
+static double func1( double *X0, double *X,  void (*vofx)(double*, double*) );
+static double func2( double *X0, double *X,  void (*vofx)(double*, double*) );
+
+//Converts copies Xin to Xout and converts
+//but sets Xout[2] to lie in the 1st quadrant, i.e. Xout[2] \in [-1,0])
+//if the point had to be mirrored
+void to1stquadrant( double *Xin, double *Xout, int *ismirrored )
+{
+  double ntimes;
+  int j;
+  
+  DLOOPA Xout[j] = Xin[j];
+  
+  //bring the angle variables to -2..2 (for X) and -2pi..2pi (for V)
+  ntimes = floor( (Xin[2]+2.0)/4.0 );
+  //this forces -2 < Xout[2] < 2
+  Xout[2] -= 4 * ntimes;
+  
+  *ismirrored = 0;
+  
+  if( Xout[2] > 0. ) {
+    Xout[2] = -Xout[2];
+    *ismirrored = 1-*ismirrored;
+  }
+  
+  //now force -1 < Xout[2] < 0
+  if( Xout[2] < -1. ) {
+    Xout[2] = -2. - Xout[2];
+    *ismirrored = 1-*ismirrored;
+  }
+}
+
+double sinth0( double *X0, double *X, void (*vofx)(double*, double*) )
+{
+  double V0[NDIM];
+  double Vc0[NDIM];
+  double Xc0[NDIM];
+  int j;
+  
+  //X1 = {0, X[1], X0[1], 0}
+  DLOOPA Xc0[j] = X[j];
+  Xc0[2] = X0[2];
+  
+  vofx( Xc0, Vc0 );
+  vofx( X0, V0 );
+  
+  
+  return( V0[1] * sin(V0[2]) / Vc0[1] );
+}
+
+double sinth1in( double *X0, double *X, void (*vofx)(double*, double*) )
+{
+  double V[NDIM];
+  double V0[NDIM];
+  double V0c[NDIM];
+  double X0c[NDIM];
+  int j;
+  
+  //X1 = {0, X[1], X0[1], 0}
+  DLOOPA X0c[j] = X0[j];
+  X0c[2] = X[2];
+  
+  vofx( X, V );
+  vofx( X0c, V0c );
+  vofx( X0, V0 );
+  
+  return( V0[1] * sin(V0c[2]) / V[1] );
+}
+
+
+double th2in( double *X0, double *X, void (*vofx)(double*, double*) )
+{
+  double V[NDIM];
+  double V0[NDIM];
+  double Vc0[NDIM];
+  double Xc0[NDIM];
+  double Xcmid[NDIM];
+  double Vcmid[NDIM];
+  int j;
+  double res;
+  double th0;
+  
+  DLOOPA Xc0[j] = X[j];
+  Xc0[2] = X0[2];
+  vofx( Xc0, Vc0 );
+  
+  DLOOPA Xcmid[j] = X[j];
+  Xcmid[2] = 0;
+  vofx( Xcmid, Vcmid );
+  
+  vofx( X0, V0 );
+  vofx( X, V );
+  
+  th0 = asin( sinth0(X0, X, vofx) );
+  
+  res = (V[2] - Vc0[2])/(Vcmid[2] - Vc0[2]) * (Vcmid[2]-th0) + th0;
+  
+  return( res );
+}
+
+//Adjusts V[2]=theta so that a few innermost cells around the pole
+//become cylindrical
+//ASSUMES: poles are at
+//            X[2] = -1 and +1, which correspond to
+//            V[2] = 0 and pi
+void vofx_cylindrified( double *Xin, void (*vofx)(double*, double*), double *Vout )
+{
+  double npiovertwos;
+  double X[NDIM], V[NDIM];
+  double Vin[NDIM];
+  double X0[NDIM], V0[NDIM];
+  double Xtr[NDIM], Vtr[NDIM];
+  double f1, f2, dftr;
+  double sinth, th;
+  int j, ismirrored;
+  
+  vofx( Xin, Vin );
+  
+  // BRING INPUT TO 1ST QUADRANT:  X[2] \in [-1 and 0]
+  to1stquadrant( Xin, X, &ismirrored );
+  vofx( X, V );
+  
+  //initialize X0: cylindrify region
+  //X[1] < X0[1] && X[2] < X0[2] (value of X0[3] not used)
+  X0[0] = Xin[0];
+  X0[1] = global_x10;
+  X0[2] = global_x20;
+  X0[3] = 0;
+  vofx( X0, V0 );
+  
+  //{0, roughly midpoint between grid origin and x10, -1, 0}
+  DLOOPA Xtr[j] = X[j];
+  Xtr[1] = log( 0.5*( exp(X0[1])+exp(startx[1]) ) );   //always bound to be between startx[1] and X0[1]
+  vofx( Xtr, Vtr );
+  
+  f1 = func1( X0, X, vofx );
+  f2 = func2( X0, X, vofx );
+  dftr = func2( X0, Xtr, vofx ) - func1( X0, Xtr, vofx );
+  
+  // Compute new theta
+  sinth = maxs( V[1]*f1, V[1]*f2, Vtr[1]*fabs(dftr)+SMALL ) / V[1];
+  
+  th = asin( sinth );
+  
+  //initialize Vout with the original values
+  DLOOPA Vout[j] = Vin[j];
+  
+  //apply change in theta in the original quadrant
+  if( 0 == ismirrored ) {
+    Vout[2] = Vin[2] + (th - V[2]);
+  }
+  else {
+    //if mirrrored, flip the sign
+    Vout[2] = Vin[2] - (th - V[2]);
+  }
+}
+
+double func1( double *X0, double *X,  void (*vofx)(double*, double*) )
+{
+  double V[NDIM];
+  
+  vofx( X, V );
+  
+  return( sin(V[2]) );
+}
+
+double func2( double *X0, double *X,  void (*vofx)(double*, double*) )
+{
+  double V[NDIM];
+  double Xca[NDIM];
+  double func2;
+  int j;
+  double sth1in, sth2in, sth1inaxis, sth2inaxis;
+  
+  //{0, X[1], -1, 0}
+  DLOOPA Xca[j] = X[j];
+  Xca[2] = -1;
+  
+  vofx( X, V );
+  
+  sth1in = sinth1in( X0, X, vofx );
+  sth2in = sin( th2in(X0, X, vofx) );
+  
+  sth1inaxis = sinth1in( X0, Xca, vofx );
+  sth2inaxis = sin( th2in(X0, Xca, vofx) );
+  
+  func2 = minmaxs( sth1in, sth2in, fabs(sth2inaxis-sth1inaxis)+SMALL, X[1] - X0[1] );
+  
+  return( func2 );
 }
 
