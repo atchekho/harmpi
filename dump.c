@@ -195,10 +195,6 @@ size_t dump(int dumpno, int is_dry_run)
         fprintf(fp, FMT_DBL_OUT, R0       );
         fprintf(fp, FMT_INT_OUT, (int)NPR );
         fprintf(fp, FMT_INT_OUT, (int)DOKTOT );
-        fprintf(fp, FMT_INT_OUT, (int)eHEAT );
-        fprintf(fp, FMT_INT_OUT, (int)eCOND );
-        fprintf(fp, FMT_INT_OUT, (int)DONUCLEAR );
-        fprintf(fp, FMT_INT_OUT, (int)DOFLR );
         fprintf(fp, FMT_INT_OUT, (int)DOCYLINDRIFYCOORDS );
         fprintf(fp, FMT_DBL_OUT, fractheta);
         fprintf(fp, FMT_DBL_OUT, fracphi  );
@@ -432,10 +428,6 @@ size_t gdump(int is_dry_run)
         fprintf(fp, FMT_DBL_OUT, R0       );
         fprintf(fp, FMT_INT_OUT, (int)NPR );
         fprintf(fp, FMT_INT_OUT, (int)DOKTOT );
-        fprintf(fp, FMT_INT_OUT, (int)eHEAT );
-        fprintf(fp, FMT_INT_OUT, (int)eCOND );
-        fprintf(fp, FMT_INT_OUT, (int)DONUCLEAR );
-        fprintf(fp, FMT_INT_OUT, (int)DOFLR );
         fprintf(fp, FMT_INT_OUT, (int)DOCYLINDRIFYCOORDS );
         fprintf(fp, FMT_DBL_OUT, fractheta);
         fprintf(fp, FMT_DBL_OUT, fracphi  );
@@ -616,10 +608,6 @@ size_t gdump2(int is_dry_run)
             fprintf(fp, FMT_DBL_OUT, R0       );
             fprintf(fp, FMT_INT_OUT, (int)NPR );
             fprintf(fp, FMT_INT_OUT, (int)DOKTOT );
-            fprintf(fp, FMT_INT_OUT, (int)eHEAT );
-            fprintf(fp, FMT_INT_OUT, (int)eCOND );
-            fprintf(fp, FMT_INT_OUT, (int)DONUCLEAR );
-            fprintf(fp, FMT_INT_OUT, (int)DOFLR );
             fprintf(fp, FMT_INT_OUT, (int)DOCYLINDRIFYCOORDS );
             fprintf(fp, FMT_DBL_OUT, fractheta);
             fprintf(fp, FMT_DBL_OUT, fracphi  );
@@ -784,10 +772,6 @@ void fdump(int dumpno)
     fprintf(fp, FMT_DBL_OUT, R0       );
     fprintf(fp, FMT_INT_OUT, (int)NPR );
     fprintf(fp, FMT_INT_OUT, (int)DOKTOT );
-    fprintf(fp, FMT_INT_OUT, (int)eHEAT );
-    fprintf(fp, FMT_INT_OUT, (int)eCOND );
-    fprintf(fp, FMT_INT_OUT, (int)DONUCLEAR );
-    fprintf(fp, FMT_INT_OUT, (int)DOFLR );
     fprintf(fp, FMT_INT_OUT, (int)DOCYLINDRIFYCOORDS );
     fprintf(fp, FMT_DBL_OUT, fractheta);
     fprintf(fp, FMT_DBL_OUT, fracphi  );
