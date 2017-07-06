@@ -139,7 +139,7 @@ def mkmov_simple(starti=0,endi=400):
         ax.set_ylabel(r"$z\ [r_g]$",fontsize=20,labelpad=-5)
         cb.ax.set_xlabel(r"$\log\rho$",fontsize=20,ha="left")
         plc(aphi,levels=np.linspace(-amax,amax,10)[1:-1],colors="white",linewidths=2,xy=-1)
-        print i;
+        print(i);
         plt.title("t=%.4g"%np.round(t)); 
         plt.draw();
         plt.savefig("frame%03d.png"%i)
@@ -211,7 +211,7 @@ def mkmov(startn=0,endn=-1,ln=10,whichi=0,whichn=1,**kwargs):
         else:
             print("Unknown movie type: %s" % which)
             return
-        print fldindex
+        print(fldindex)
         plt.draw()
         if dosavefig:
             plt.savefig(fname,dpi = dpi)
@@ -407,7 +407,7 @@ def read_file(dump,type=None,savedump=True,saverdump=False,noround=False):
                 ltk = np.int64(ltk)
                 fgd[:,lti+N1G,ltj+N2G,ltk+N3G] = lgd[:,:,:,:]
             else:
-                print starti,startj,startk
+                print(starti,startj,startk)
                 fgd[:,starti:starti+N1+2*N1G,startj:startj+N2+2*N2G,startk:startk+N3+2*N3G] = lgd[:,:,:,:]
             del lgd
             if i%dndot == 0:
@@ -1030,7 +1030,7 @@ def testfail(fldname = "dump000"):
     try: 
         rd(fldname)
     except IOError as e:
-        print "I/O error({0}): {1}".format(e.errno, e.strerror)
+        print("I/O error({0}): {1}".format(e.errno, e.strerror))
 
 
 def get_sorted_file_list(prefix="dump"):
