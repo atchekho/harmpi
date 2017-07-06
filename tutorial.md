@@ -118,7 +118,7 @@ of scientific questions that you can answer with the code.
 
 * Choosing desired resolution
 
-	You can choose the desired resolution per *tile*, or per MPI process, by changing the values of `N1`, `N2`, and `N3` for the chosen problem in (decs.h)[decs.h]. If there are more than one tile, this will be smaller than the total resolution.
+	You can choose the desired resolution per *tile*, or per MPI process, by changing the values of `N1`, `N2`, and `N3` for the chosen problem in [decs.h](decs.h). If there are more than one tile, this will be smaller than the total resolution.
 
 * Choosing the number of tiles and running the code
 
@@ -140,7 +140,7 @@ of scientific questions that you can answer with the code.
 	For the example above, this would give a total resolution of 64x64x1 cells. Note: it is a good idea to clean out the `dumps/` directory before you run the code, or else the code would attempt to restart from `dumps/rdump0`.
 
 
-	As the code runs, it produces sequential dump files in the 'dumps' subdirectory, i.e., dumps/dump###. It also produces dumps/gdump file that contains the information about the metric and the grid.
+	As the code runs, it produces sequential dump files in the `dumps` subdirectory, i.e., `dumps/dump###`. It also produces `dumps/gdump` file that contains the information about the metric and the grid.
 
 * Resolving potential run-time problems
 
