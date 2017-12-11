@@ -184,7 +184,7 @@ void init_torus()
     fractheta = 1.e-2;
   }
   
-  fracphi = 0.5;
+  fracphi = 1.;
 
   //cylindrification parameters
   global_x10 = 3.5;  //radial distance in MCOORD until which the innermost angular cell is cylinrdical
