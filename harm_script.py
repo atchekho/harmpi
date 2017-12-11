@@ -455,7 +455,7 @@ def read_header(dump,issilent=True,returnheaderline=False):
     fin.close()
     if not dump.startswith("dumps/rdump"):
         if not issilent: print( "dump header: len(header) = %d" % len(header) )
-        nheader = 45
+        nheader = 57
         n = 0
         t = myfloat(np.float64(header[n])); n+=1
         #per tile resolution
@@ -497,14 +497,26 @@ def read_header(dump,issilent=True,returnheaderline=False):
         Rout=myfloat(float(header[n])); n+=1
         hslope=myfloat(float(header[n])); n+=1
         R0=myfloat(float(header[n])); n+=1
-         NPR=int(header[n]); n+=1
-         DOKTOT=int(header[n]); n+=1
-         fractheta = myfloat(header[n]); n+=1
-         fracphi   = myfloat(header[n]); n+=1
-         rbr       = myfloat(header[n]); n+=1
-         npow2     = myfloat(header[n]); n+=1
-         cpow2     = myfloat(header[n]); n+=1
-         BL = myfloat(header[n]); n+=1
+        NPR=int(header[n]); n+=1
+        DOKTOT=int(header[n]); n+=1
+        DOCYLINDRIFYCOORDS=int(header[n]); n+=1
+        fractheta = myfloat(header[n]); n+=1
+        fracphi   = myfloat(header[n]); n+=1
+        rbr       = myfloat(header[n]); n+=1
+        npow2     = myfloat(header[n]); n+=1
+        cpow2     = myfloat(header[n]); n+=1
+        x10 = myfloat(header[n]); n+=1
+        x20 = myfloat(header[n]); n+=1
+        fracdisk = myfloat(header[n]); n+=1
+        fracjet = myfloat(header[n]); n+=1
+        r0disk = myfloat(header[n]); n+=1
+        rdiskend = myfloat(header[n]); n+=1
+        r0jet = myfloat(header[n]); n+=1
+        rjetend = myfloat(header[n]); n+=1
+        jetnu = myfloat(header[n]); n+=1
+        rsjet = myfloat(header[n]); n+=1
+        r0grid = myfloat(header[n]); n+=1
+        BL = myfloat(header[n]); n+=1
     else:
         print("rdump header")
         nheader = 48
