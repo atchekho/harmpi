@@ -853,7 +853,7 @@ def plc(myvar,**kwargs): #plc
             ycoord=np.concatenate((ycoord[:,::-1],ycoord),axis=1)
         else:
             if myvar.shape[-1] > 1: 
-                symmk = (k+nz/2)%nz 
+                symmk = (k+nz//2)%nz 
             else: 
                 symmk = k
             myvar=np.concatenate((myvar[:,ny-1:ny,k:k+1],myvar[:,::-1,symmk:symmk+1],myvar[:,:,k:k+1]),axis=1)
@@ -869,9 +869,9 @@ def plc(myvar,**kwargs): #plc
             r1 = np.concatenate((r,r[...,0:1]),axis=2)
             ph1 = np.concatenate((ph,ph[...,0:1]+2*np.pi),axis=2)
             myvar = np.concatenate((myvar,myvar[...,0:1]),axis=2)
-        xcoord=(r1*cos(ph1))[:,ny/2,:,None]
-        ycoord=(r1*sin(ph1))[:,ny/2,:,None]
-        myvar = myvar[:,ny/2,:,None]
+        xcoord=(r1*cos(ph1))[:,ny//2,:,None]
+        ycoord=(r1*sin(ph1))[:,ny//2,:,None]
+        myvar = myvar[:,ny//2,:,None]
     else:
         myvar = myvar[:,:,None] if myvar.ndim == 2 else myvar[:,:,k:k+1]
     if lin:
@@ -1002,7 +1002,7 @@ if __name__ == "__main__":
         plt.clf()
         rg("gdump")
         rd("dump000")
-        plt.plot(r[:,ny/2,0],rho[:,ny/2,0])
+        plt.plot(r[:,ny//2,0],rho[:,ny//2,0])
         plt.xscale("log")
         plt.yscale("log")
         plt.xlabel("r")
