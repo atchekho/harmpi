@@ -198,7 +198,7 @@ You can use any visualization program you are used to (Python, Gnuplot, IDL, Mat
 
 * Once you read in a dump file, you can print its current time via
 
-		print t
+		print(t)
 
 ## Understanding the grid
 
@@ -279,7 +279,7 @@ velocities
 
 * Plot the 1D radial dependence of density along the equatorial plane
 
-		plt.loglog(r[:,ny/2,0], rho[:,ny/2,0])
+		plt.loglog(r[:,ny//2,0], rho[:,ny//2,0])
 		plt.xlabel("r")
 		plt.ylabel("rho")
 

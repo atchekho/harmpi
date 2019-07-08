@@ -1118,7 +1118,7 @@ if __name__ == "__main__":
             plt.clf()
             rg("gdump")
             rd("dump000")
-            plt.loglog(r[:,ny/2,0],rho[:,ny/2,0])
+            plt.loglog(r[:,ny//2,0],rho[:,ny//2,0])
             plt.xlabel("r")
             plt.ylabel("rho")
         if False:
