@@ -216,7 +216,7 @@ void init_torus()
   DTl = 10. ;	/* logfile frequency, in units of M */
   DTi = 10. ; 	/* image file frequ., in units of M */
   DTr = 10. ; /* restart file frequ., in units of M */
-  DTr01 = 10000. ; /* restart file frequ., in timesteps */
+  DTr01 = 100. ; /* restart file frequ., in timesteps */
 
   /* start diagnostic counters */
   dump_cnt = 0 ;
