@@ -128,7 +128,7 @@ def Ebindisco(a):
     #Eb = (1.-3.**(-0.5))*a**2
     return( Eb )
 
-def mkmov_simple(starti=0,endi=400):
+def mkmov_simple(starti=0,endi=400,length=10):
     for i in np.arange(starti,endi+1):
         rd("dump%03d" % i);
         aphi=psicalc()
@@ -141,6 +141,7 @@ def mkmov_simple(starti=0,endi=400):
         plc(aphi,levels=np.linspace(-amax,amax,10)[1:-1],colors="white",linewidths=2,xy=-1)
         print(i);
         plt.title("t=%.4g"%np.round(t)); 
+        plt.xlim(0,length);plt.ylim(-0.5*length,0.5*length)
         plt.draw();
         plt.savefig("frame%03d.png"%i)
 
