@@ -320,7 +320,7 @@ velocities
 		OmegaF = omegaf2 #the value of omegaf2 is computed inside aux()
 		OmegaH = a / (2*rhor)
 		rhor = 1+(1-a*a)**0.5
-		ihor = ti[r>=rhor][0] #compute the index of the cell at the location of the horizon
+		ihor = np.int32(ti[r>=rhor][0]) #compute the index of the cell at the location of the horizon
 		plt.plot(h[ihor,:,0],OmegaF[ihor,:,0]/OmegaH)
 		plt.ylabel("OmegaF/OmegaH")
 		plt.xlabel("theta")
