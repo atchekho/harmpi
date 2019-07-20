@@ -367,3 +367,15 @@ velocities
 		mkmov_simple(starti = 0,endi = 100)
 
 	Here `starti` is the first frame number and `endi` is the last frame number. Note: the color limits are tuned for the torus problem (`TORUS_PROBLEM`), and you'd have to adjust them for other problems.
+
+	To generate a movie file, try using the following:
+
+		ffmpeg -i frame%03d.png -vcodec mpeg4 -qmax 5 movie.mp4
+
+	This creates a movie file that you can play on almost any computer. Note that you can speed up or slow down the movie. For instance, to slow it down to 10 frames per second, do:
+
+		ffmpeg -fflags +genpts -r 10 -i frame%03d.png -vcodec mpeg4 -qmax 5 movie.mp4
+
+	If ffmpeg is not installed, you can try installing it on Ubuntu-like Linux by
+
+		sudo apt install ffmpeg
