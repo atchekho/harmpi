@@ -26,6 +26,18 @@ rc('ytick', labelsize=20)
 # rc('legend',**legend)
 axes = {'labelsize': 20}
 rc('axes', **axes)
+
+#the below fixes the minus signs in axes labels
+mpl.rcParams['axes.unicode_minus'] = 'False'
+
+#the below fixes the cross symbol in e.g. $2 \times 10^1$ in axes labels
+fix_cross_in_labels = True
+if(fix_cross_in_labels):
+    rc('font', family='stix')
+else:
+    #choose Computer Modern Roman fonts by default
+    mpl.rcParams['font.serif'] = 'cmr10'
+    mpl.rcParams['font.sans-serif'] = 'cmr10'
 rc('mathtext',fontset='cm')
 #use this, but at the expense of slowdown of rendering
 #rc('text', usetex=True)
