@@ -598,11 +598,13 @@ double normalize_B_by_beta(double beta_target, double (*p)[N2M][N3M][NPR], doubl
     p[i][j][k][B1] *= norm ;
     p[i][j][k][B2] *= norm ;
     p[i][j][k][B3] *= norm ;
+    coord(i, j, k, CENT, X);
+    bl_coord(X, &r, &th, &ph);
     get_geometry(i,j,k,CENT,&geom) ;
     bsq_ij = bsq_calc(p[i][j][k],&geom) ;
     u_ij = p[i][j][k][UU];
     beta_ij = (gam - 1.)*u_ij/(0.5*(bsq_ij+SMALL)) ;
-    if(beta_ij < beta_min) beta_min = beta_ij ;
+    if(r<rmax && beta_ij < beta_min) beta_min = beta_ij ;
   }
 #ifdef MPI
   //exchange the info between the MPI processes to get the true max
