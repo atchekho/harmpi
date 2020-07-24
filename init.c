@@ -450,7 +450,7 @@ void init_torus()
     }
 
     if(MASTER==mpi_rank)
-      fprintf(stderr,"final beta: %g (should be %g)\n",beta_act,beta) ;
+      fprintf(stderr,"final beta: %g (should be %g); normalization factor: %g\n",beta_act,beta,norm) ;
   }
 
     
