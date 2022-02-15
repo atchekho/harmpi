@@ -278,9 +278,8 @@ void fixup1zone( int i, int j, int k, double pv[NPR] )
              QdotB, QdotBnew, reldiff);
     }
 #endif //end check on QdotB
-
-#endif
 }
+#endif
 
 #if(DOKTOT)
     if(pv_prefloor[RHO] >0){
