@@ -29,9 +29,10 @@ rc('axes', **axes)
 
 #the below fixes the minus signs in axes labels
 mpl.rcParams['axes.unicode_minus'] = 'False'
-
+mpl.rcParams['axes.formatter.use_mathtext'] = 'True'
 #the below fixes the cross symbol in e.g. $2 \times 10^1$ in axes labels
-fix_cross_in_labels = True
+fix_cross_in_labels = False
+
 if(fix_cross_in_labels):
     rc('font', family='stix')
 else:
