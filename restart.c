@@ -669,7 +669,7 @@ int fscanf_and_bcast(FILE *fp, char *format, ...)
     ret = 0;
   }
 #else
-  fprintf(stderr,"Cannot communicate since MPI is not defined\n");
+  //fprintf(stderr,"Cannot communicate since MPI is not defined\n");
   fflush(stderr);
   ret = 0;
 #endif
