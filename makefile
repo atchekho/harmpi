@@ -45,7 +45,7 @@
 ########  gcc generally used for debugging with -g option so we can use gdb 
 USEICC = 0
 USEOMP = 0  #please do not use this option (yet), as this has not been recently tested
-USEMPI = 1
+USEMPI = 0
 
 ifeq ($(USEICC),1)
 CC       = mpicc
