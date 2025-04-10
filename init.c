@@ -444,7 +444,9 @@ void init_torus()
       if(i_am_the_master) {
         fprintf(stderr, "Unknown magnetic field normalization %d\n",
                 WHICH_FIELD_NORMALIZATION);
+        #ifdef MPI
         MPI_Finalize();
+	#endif
         exit(2345);
       }
     }
